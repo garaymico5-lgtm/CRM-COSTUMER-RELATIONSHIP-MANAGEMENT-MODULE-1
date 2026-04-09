@@ -1,0 +1,18 @@
+<h2>Search Customer</h2>
+
+<form method="POST">
+    Enter ID: <input name="id" required>
+    <button>Search</button>
+</form>
+
+{% if customer %}
+    <h3>Result:</h3>
+    <p>ID: {{ customer.get_id() }}</p>
+    <p>Name: {{ customer.get_name() }}</p>
+    <p>Email: {{ customer.get_contact() }}</p>
+{% elif message %}
+    <p style="color:red;">{{ message }}</p>
+{% endif %}
+
+<br>
+<a href="{{ url_for('home') }}">Back to Menu</a>

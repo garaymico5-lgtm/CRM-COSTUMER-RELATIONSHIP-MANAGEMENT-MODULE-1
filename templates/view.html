@@ -1,0 +1,29 @@
+<h2>Customer List</h2>
+
+{% if customers %}
+<table border="1" cellpadding="5" style="border-collapse: collapse;">
+    <tr style="background-color: lightgray;">
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Action</th>
+    </tr>
+
+    {% for c in customers %}
+    <tr>
+        <td>{{ c.get_id() }}</td>
+        <td>{{ c.get_name() }}</td>
+        <td>{{ c.get_contact() }}</td>
+        <td>
+            <a href="{{ url_for('edit', cid=c.get_id()) }}">Edit</a> |
+            <a href="{{ url_for('delete', cid=c.get_id()) }}">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No customers found.</p>
+{% endif %}
+
+<br>
+<a href="{{ url_for('home') }}">Back to Menu</a>
