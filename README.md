@@ -42,10 +42,10 @@ Installation:
               2.install flask:
               pip install Flask == 3.1.3
 
-              run the application:
+              3.run the application:
               http://127.0.0.1:
 
-              3. cloning the folder in vscode to repository using git:
+              4. cloning the folder in vscode to repository using git:
               git init
               git add .
               git commit -am ""
