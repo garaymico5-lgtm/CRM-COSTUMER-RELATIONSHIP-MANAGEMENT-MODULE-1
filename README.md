@@ -37,7 +37,7 @@ Installation:
 
               1. Clone The repository:
                 git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+                cd your-repo-name
 
               2.install flask:
               pip install Flask == 3.1.3
