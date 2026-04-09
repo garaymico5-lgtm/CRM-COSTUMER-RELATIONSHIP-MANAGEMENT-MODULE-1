@@ -1,28 +1,22 @@
-itle & Description: COSTUMER RELATIONSHIP MANAGEMENT (CRM) GOOD FOR SMALL ENTERPRISES
--    sdasdwadfaq
-
-
-
+Title & Description: COSTUMER RELATIONSHIP MANAGEMENT (CRM) GOOD FOR SMALL ENTERPRISES
+-
+-sdafqwewef
 Prerequisites: Python
 
                Pip
 
-               Flask
+               Flask 
 
                Visual Studio Code
 
-               Web Browser
+               Web Browser 
 
                GitHub
                
                git
 
-
-
 Installation: Specific commands to get the project running.
 
-
 Usage: Examples of how to use the software, often with code blocks.
-
 
 Module: Full Discription of your completed and functioning module
