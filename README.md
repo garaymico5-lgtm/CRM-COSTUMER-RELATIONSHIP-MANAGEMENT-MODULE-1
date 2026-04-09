@@ -1,6 +1,6 @@
 Title & Description: COSTUMER RELATIONSHIP MANAGEMENT (CRM) GOOD FOR SMALL ENTERPRISES
 -
--sdafqwewef
+-
 Prerequisites: Python
 
                Pip
@@ -12,7 +12,7 @@ Prerequisites: Python
                Web Browser 
 
                GitHub
-               
+
                git
 
 Installation: Specific commands to get the project running.
