@@ -4,11 +4,17 @@ itle & Description: COSTUMER RELATIONSHIP MANAGEMENT (CRM) GOOD FOR SMALL ENTERP
 
 
 Prerequisites: Python
+
                Pip
+
                Flask
+
                Visual Studio Code
+
                Web Browser
+
                GitHub
+               
                git
 
 
