@@ -1,0 +1,28 @@
+<h2>All Interactions</h2>
+
+<table border="1">
+<tr>
+    <th>Customer ID</th>
+    <th>Type</th>
+    <th>Notes</th>
+    <th>Actions</th>
+</tr>
+
+{% for r in records %}
+<tr>
+    <td>{{ r.customer_id }}</td>
+    <td>{{ r.type }}</td>
+
+    <td>
+        <form action="/update/{{ r.id }}" method="POST">
+            <input type="text" name="notes" value="{{ r.notes }}">
+            <button type="submit">Update</button>
+        </form>
+    </td>
+
+    <td>
+        <a href="/delete/{{ r.id }}">Delete</a>
+    </td>
+</tr>
+{% endfor %}
+</table>

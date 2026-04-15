@@ -174,6 +174,74 @@ def delete(cid):
     return redirect(url_for("view"))
 
 
+
+
+from flask import Flask, render_template, request, redirect, url_for
+
+app = Flask(__name__)
+
+# TEMP STORAGE
+interactions = []
+
+# ======================
+# ADD INTERACTION
+# ======================
+@app.route('/add_interaction', methods=['GET', 'POST'])
+def add_interaction():
+    if request.method == 'POST':
+        customer_id = request.form['customer_id']
+        interaction_type = request.form['type']
+        notes = request.form['notes']
+
+        if notes == "":
+            return "Notes cannot be empty"
+
+        interaction = {
+            "id": len(interactions),
+            "customer_id": customer_id,
+            "type": interaction_type,
+            "notes": notes
+        }
+
+        interactions.append(interaction)
+        return redirect(url_for('view_interactions'))
+
+    return render_template('add_interaction.html')
+
+
+# ======================
+# VIEW + UPDATE + DELETE
+# ======================
+@app.route('/view_interactions')
+def view_interactions():
+    return render_template('view_interactions.html', records=interactions)
+
+
+# ======================
+# UPDATE
+# ======================
+@app.route('/update/<int:id>', methods=['POST'])
+def update(id):
+    notes = request.form['notes']
+
+    for interaction in interactions:
+        if interaction["id"] == id:
+            interaction["notes"] = notes
+            break
+
+    return redirect(url_for('view_interactions'))
+
+
+# ======================
+# DELETE
+# ======================
+@app.route('/delete/<int:id>')
+def delete(id):
+    global interactions
+    interactions = [i for i in interactions if i["id"] != id]
+    return redirect(url_for('view_interactions'))
+
+
 # RUN
 if __name__ == "__main__":
     app.run(debug=True)
