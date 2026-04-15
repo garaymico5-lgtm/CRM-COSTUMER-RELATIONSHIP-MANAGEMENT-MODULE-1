@@ -1,8 +1,12 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 
 app = Flask(__name__)
-app.secret_key = "secret123" 
+app.secret_key = "secret123"
 
+
+# ============================================================
+# MODULE 1: CUSTOMER MANAGEMENT
+# ============================================================
 
 class Customer:
     def __init__(self, customer_id, name, contact):
@@ -55,14 +59,107 @@ class CRM:
                 self.customers.remove(c)
                 return "Deleted successfully"
         return "Customer not found"
-    
+
+
+# ============================================================
+# MODULE 2: INTERACTION / COMMUNICATION MANAGEMENT
+# ============================================================
+
+class Interaction:
+    def __init__(self, interaction_id, customer_id, interaction_type, date_time, notes):
+        self.__interaction_id = interaction_id
+        self.__customer_id = customer_id
+        self.__interaction_type = interaction_type
+        self.__date_time = date_time
+        self.__notes = notes
+
+    def get_id(self):
+        return self.__interaction_id
+
+    def get_customer_id(self):
+        return self.__customer_id
+
+    def get_type(self):
+        return self.__interaction_type
+
+    def get_datetime(self):
+        return self.__date_time
+
+    def get_notes(self):
+        return self.__notes
+
+    def set_notes(self, notes):
+        self.__notes = notes
+
+    def set_type(self, interaction_type):
+        self.__interaction_type = interaction_type
+
+    def set_datetime(self, date_time):
+        self.__date_time = date_time
+
+
+class InteractionManager:
+    def __init__(self):
+        self.interactions = []
+        self.__counter = 1
+
+    def generate_id(self):
+        iid = f"INT{self.__counter:03d}"
+        self.__counter += 1
+        return iid
+
+    def add_interaction(self, customer_id, interaction_type, date_time, notes):
+        if not interaction_type:
+            return "Interaction type is required"
+        if not date_time:
+            return "Date/Time is required"
+        if not notes:
+            return "Notes cannot be empty"
+        iid = self.generate_id()
+        interaction = Interaction(iid, customer_id, interaction_type, date_time, notes)
+        self.interactions.append(interaction)
+        return "Interaction Recorded Successfully"
+
+    def get_by_customer(self, customer_id):
+        return [i for i in self.interactions if i.get_customer_id() == customer_id]
+
+    def get_by_id(self, interaction_id):
+        for i in self.interactions:
+            if i.get_id() == interaction_id:
+                return i
+        return None
+
+    def update_interaction(self, interaction_id, new_notes):
+        if not new_notes:
+            return "Notes cannot be empty"
+        interaction = self.get_by_id(interaction_id)
+        if not interaction:
+            return "Interaction not found"
+        interaction.set_notes(new_notes)
+        return "Interaction updated successfully"
+
+    def delete_interaction(self, interaction_id):
+        interaction = self.get_by_id(interaction_id)
+        if not interaction:
+            return False
+        self.interactions.remove(interaction)
+        return True
+
+
+# ============================================================
+# GLOBAL INSTANCES
+# ============================================================
 
 USERNAME = "admin"
 PASSWORD = "1234"
 
-
 crm = CRM()
+im = InteractionManager()
 
+
+# ============================================================
+# MODULE 1 ROUTES
+# ============================================================
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -80,7 +177,7 @@ def login():
 
     return render_template("login.html", message=message)
 
-    
+
 @app.route("/")
 def home():
     if "user" not in session:
@@ -109,6 +206,7 @@ def view():
 
     customers = crm.get_all()
     return render_template("view.html", customers=customers)
+
 
 @app.route("/edit/<cid>", methods=["GET", "POST"])
 def edit(cid):
@@ -142,7 +240,6 @@ def edit(cid):
     return render_template("edit.html", customer=customer, message=message)
 
 
-
 @app.route("/search", methods=["GET", "POST"])
 def search():
     if "user" not in session:
@@ -174,74 +271,103 @@ def delete(cid):
     return redirect(url_for("view"))
 
 
+@app.route("/logout")
+def logout():
+    session.pop("user", None)
+    return redirect(url_for("login"))
 
 
-from flask import Flask, render_template, request, redirect, url_for
+# ============================================================
+# MODULE 2 ROUTES
+# ============================================================
 
-app = Flask(__name__)
-
-# TEMP STORAGE
-interactions = []
-
-# ======================
-# ADD INTERACTION
-# ======================
-@app.route('/add_interaction', methods=['GET', 'POST'])
+@app.route("/interactions/add", methods=["GET", "POST"])
 def add_interaction():
-    if request.method == 'POST':
-        customer_id = request.form['customer_id']
-        interaction_type = request.form['type']
-        notes = request.form['notes']
+    if "user" not in session:
+        return redirect(url_for("login"))
 
-        if notes == "":
-            return "Notes cannot be empty"
+    message = ""
+    customers = crm.get_all()
 
-        interaction = {
-            "id": len(interactions),
-            "customer_id": customer_id,
-            "type": interaction_type,
-            "notes": notes
-        }
+    if request.method == "POST":
+        customer_id = request.form.get("customer_id")
 
-        interactions.append(interaction)
-        return redirect(url_for('view_interactions'))
+        # Check if customer exists (linked)
+        customer = None
+        for c in crm.get_all():
+            if c.get_id() == customer_id:
+                customer = c
+                break
 
-    return render_template('add_interaction.html')
+        if not customer:
+            message = "Customer not found. Please select a valid customer."
+        else:
+            interaction_type = request.form.get("interaction_type")
+            date_time = request.form.get("date_time")
+            notes = request.form.get("notes")
+            message = im.add_interaction(customer_id, interaction_type, date_time, notes)
 
-
-# ======================
-# VIEW + UPDATE + DELETE
-# ======================
-@app.route('/view_interactions')
-def view_interactions():
-    return render_template('view_interactions.html', records=interactions)
+    return render_template("add_interaction.html", message=message, customers=customers)
 
 
-# ======================
-# UPDATE
-# ======================
-@app.route('/update/<int:id>', methods=['POST'])
-def update(id):
-    notes = request.form['notes']
+@app.route("/interactions/view", methods=["GET", "POST"])
+def view_interaction():
+    if "user" not in session:
+        return redirect(url_for("login"))
 
-    for interaction in interactions:
-        if interaction["id"] == id:
-            interaction["notes"] = notes
-            break
+    customer = None
+    interactions = []
+    message = ""
 
-    return redirect(url_for('view_interactions'))
+    if request.method == "POST":
+        customer_id = request.form.get("customer_id")
+
+        for c in crm.get_all():
+            if c.get_id() == customer_id:
+                customer = c
+                break
+
+        if not customer:
+            message = "Customer not found"
+        else:
+            interactions = im.get_by_customer(customer_id)
+            if not interactions:
+                message = "No interactions found for this customer"
+
+    return render_template("view_interaction.html", customer=customer, interactions=interactions, message=message)
 
 
-# ======================
-# DELETE
-# ======================
-@app.route('/delete/<int:id>')
-def delete(id):
-    global interactions
-    interactions = [i for i in interactions if i["id"] != id]
-    return redirect(url_for('view_interactions'))
+@app.route("/interactions/update/<interaction_id>", methods=["GET", "POST"])
+def update_interaction(interaction_id):
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    interaction = im.get_by_id(interaction_id)
+    if not interaction:
+        return "Interaction not found"
+
+    message = ""
+    if request.method == "POST":
+        new_notes = request.form.get("notes")
+        result = im.update_interaction(interaction_id, new_notes)
+        if result == "Interaction updated successfully":
+            return redirect(url_for("view_interaction"))
+        else:
+            message = result
+
+    return render_template("update_interaction.html", interaction=interaction, message=message)
 
 
-# RUN
+@app.route("/interactions/delete/<interaction_id>")
+def delete_interaction(interaction_id):
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    # Get customer_id before deleting for redirect
+    interaction = im.get_by_id(interaction_id)
+    im.delete_interaction(interaction_id)
+    return redirect(url_for("view_interaction"))
+
+
 if __name__ == "__main__":
     app.run(debug=True)
