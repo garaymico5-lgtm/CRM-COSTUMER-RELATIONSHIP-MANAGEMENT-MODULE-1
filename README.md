@@ -56,9 +56,12 @@ Installation:
 Usage:
 -
 
-After running the application, open your web browser and go to: http://127.0.0.1:/, From there, you can  View the homepage of the CRM system Add new customer information, View and manage existing customers, Update customer details, Delete customer records. Use the navigation options in the system to move between different features and manage customer data efficiently.
+After running the application, open your web browser and go to: http://127.0.0.1:/50000, From there, you can  View the homepage of the CRM system Add new customer information, View and manage existing customers, Update customer details, Delete customer records. Use the navigation options in the system to move between different features and manage customer data efficiently.
 
 Module: 
 -
 
 In my Module 1, I made a small changes to our project.In the Add menu you can see there an ADD ID, USERNAME, And EMAIL if you if your input is all correct there is a notification stated "Customer added successfuly".I moved the edit and delete menu into the “View Customer” section so we don’t have to keep going back.You can also see a Search customer if you have so many customer you just have to search their ID then it will search instantly. I haven’t designed the HTML yet so my group members can understand it easily and won’t get confused. We also tried checking the Module 1 we created, and so far there are no errors. This is the update for our Module 1.
+
+
+In My module 2, I added some menus; add_interactions,view_interaction,update_interaction,delete_interaction.some have changes also in Module 2 we just put the update and delete interaction in the view_interaction so that it will not be time consuming,and since we added module 2 maybe  y port or my link broke and right now i still couldn't fix the problem so far so good about my HTML in my module 2 i just run immediately my html to the vscode if there is an error just my main problem here is how to fix my port because my port or flask is broken 
