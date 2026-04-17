@@ -281,7 +281,7 @@ def logout():
 # MODULE 2 ROUTES
 # ============================================================
 
-@app.route("/interactions/add", methods=["GET", "POST"])
+@app.route("/add_interaction", methods=["GET", "POST"])
 def add_interaction():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -310,7 +310,7 @@ def add_interaction():
     return render_template("add_interaction.html", message=message, customers=customers)
 
 
-@app.route("/interactions/view", methods=["GET", "POST"])
+@app.route("/view_interaction", methods=["GET", "POST"])
 def view_interaction():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -337,7 +337,7 @@ def view_interaction():
     return render_template("view_interaction.html", customer=customer, interactions=interactions, message=message)
 
 
-@app.route("/interactions/update/<interaction_id>", methods=["GET", "POST"])
+@app.route("/update_interaction/<interaction_id>", methods=["GET", "POST"])
 def update_interaction(interaction_id):
     if "user" not in session:
         return redirect(url_for("login"))
@@ -358,7 +358,7 @@ def update_interaction(interaction_id):
     return render_template("update_interaction.html", interaction=interaction, message=message)
 
 
-@app.route("/interactions/delete/<interaction_id>")
+@app.route("/delete_interaction/<interaction_id>")
 def delete_interaction(interaction_id):
     if "user" not in session:
         return redirect(url_for("login"))
