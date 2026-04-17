@@ -310,7 +310,7 @@ def add_interaction():
     return render_template("add_interaction.html", message=message, customers=customers)
 
 
-@app.route("/view_interaction", methods=["GET", "POST"])
+@app.route("/view_interactions", methods=["GET", "POST"])
 def view_interaction():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -370,4 +370,4 @@ def delete_interaction(interaction_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,port=8000)
