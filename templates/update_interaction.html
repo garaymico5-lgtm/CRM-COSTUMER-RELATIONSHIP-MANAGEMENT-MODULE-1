@@ -4,135 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Interaction - CRM</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #1a1a2e;
-            color: #eee;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .container {
-            background: #16213e;
-            border: 1px solid #0f3460;
-            border-radius: 12px;
-            padding: 40px;
-            width: 100%;
-            max-width: 520px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-        }
-        h2 { color: #e94560; margin-bottom: 6px; font-size: 1.6rem; }
-        .subtitle { color: #888; font-size: 0.85rem; margin-bottom: 24px; }
-
-        .info-card {
-            background: #0f3460;
-            border-radius: 8px;
-            padding: 14px 18px;
-            margin-bottom: 24px;
-            font-size: 0.88rem;
-        }
-        .info-card .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-        .info-card .lbl { color: #888; }
-        .info-card .val { color: #eee; font-weight: 500; }
-        .type-badge {
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .type-Call { background: #1a3a5c; color: #64b5f6; }
-        .type-Email { background: #1a3a2e; color: #81c784; }
-        .type-Meeting { background: #3a2a1a; color: #ffb74d; }
-        .type-Chat { background: #2a1a3a; color: #ce93d8; }
-        .type-Other { background: #2a2a2a; color: #aaa; }
-
-        .form-group { margin-bottom: 18px; }
-        label {
-            display: block;
-            font-size: 0.85rem;
-            color: #aaa;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        textarea {
-            width: 100%;
-            padding: 11px 14px;
-            background: #0f3460;
-            border: 1px solid #1a4a8a;
-            border-radius: 8px;
-            color: #eee;
-            font-size: 0.95rem;
-            outline: none;
-            resize: vertical;
-            min-height: 120px;
-            transition: border-color 0.2s;
-        }
-        textarea:focus { border-color: #e94560; }
-
-        .message {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 18px;
-            font-size: 0.9rem;
-        }
-        .message.error { background: #4a1a1a; color: #f44336; border: 1px solid #f44336; }
-
-        .btn-row { display: flex; gap: 12px; }
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            text-align: center;
-            transition: opacity 0.2s;
-        }
-        .btn:hover { opacity: 0.85; }
-        .btn-save { background: #e94560; color: white; }
-        .btn-cancel { background: #0f3460; color: #aaa; }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>✏️ Update Interaction</h2>
-        <p class="subtitle">Module 2 — Edit interaction notes</p>
 
-        <div class="info-card">
-            <div class="row">
-                <span class="lbl">Interaction ID</span>
-                <span class="val">{{ interaction.get_id() }}</span>
-            </div>
-            <div class="row">
-                <span class="lbl">Type</span>
-                <span class="type-badge type-{{ interaction.get_type() }}">{{ interaction.get_type() }}</span>
-            </div>
-            <div class="row">
-                <span class="lbl">Date & Time</span>
-                <span class="val">{{ interaction.get_datetime() }}</span>
-            </div>
+    <h2>Update Interaction</h2>
+    <p>Module 2 — Edit interaction notes</p>
+
+    <div>
+        <p><strong>Interaction ID:</strong> {{ interaction.get_id() }}</p>
+        <p><strong>Type:</strong> {{ interaction.get_type() }}</p>
+        <p><strong>Date & Time:</strong> {{ interaction.get_datetime() }}</p>
+    </div>
+
+    {% if message %}
+        <div>
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+
+        <div>
+            <label>Update Notes</label><br>
+            <textarea name="notes" required>{{ interaction.get_notes() }}</textarea>
         </div>
 
-        {% if message %}
-            <div class="message error">{{ message }}</div>
-        {% endif %}
+        <br>
 
-        <form method="POST">
-            <div class="form-group">
-                <label>Update Notes</label>
-                <textarea name="notes" required>{{ interaction.get_notes() }}</textarea>
-            </div>
-            <div class="btn-row">
-                <a href="{{ url_for('view_interaction') }}" class="btn btn-cancel">Cancel</a>
-                <button type="submit" class="btn btn-save">💾 Save Changes</button>
-            </div>
-        </form>
-    </div>
+        <a href="{{ url_for('view_interaction') }}">Cancel</a>
+        <button type="submit">Save Changes</button>
+
+    </form>
+
 </body>
 </html>
