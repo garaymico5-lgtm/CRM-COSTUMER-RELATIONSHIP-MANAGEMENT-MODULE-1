@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Support Tickets</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>View Support Tickets</h1>
+    
+    <form method="POST">
+        <label>Filter by Customer:</label>
+        <select name="customer_id">
+            <option value="all">All Tickets</option>
+            {% for customer in customers %}
+                <option value="{{ customer.get_id() }}">{{ customer.get_id() }} - {{ customer.get_name() }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="View Tickets">
+    </form>
+    
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+    
+    {% if tickets %}
+        <h2>Ticket List</h2>
+        <table>
+            <tr>
+                <th>Ticket ID</th>
+                <th>Customer ID</th>
+                <th>Description</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Actions</th>
+            </tr>
+            {% for ticket in tickets %}
+            <tr>
+                <td>{{ ticket.get_id() }}</td>
+                <td>{{ ticket.get_customer_id() }}</td>
+                <td>{{ ticket.get_description()[:50] }}...</td>
+                <td>{{ ticket.get_priority() }}</td>
+                <td>{{ ticket.get_status() }}</td>
+                <td>{{ ticket.get_created_date() }}</td>
+                <td>
+                    <a href="/update_ticket_priority/{{ ticket.get_id() }}">Update Priority</a> |
+                    <a href="/update_ticket_status/{{ ticket.get_id() }}">Update Status</a> |
+                    <a href="/close_ticket/{{ ticket.get_id() }}">Close Ticket</a> |
+                    <a href="/ticket_history/{{ ticket.get_id() }}">View History</a> |
+                    <a href="/delete_ticket/{{ ticket.get_id() }}" onclick="return confirm('Delete this ticket?')">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    <br>
+    <a href="/">Back to Menu</a>
+</body>
+</html>

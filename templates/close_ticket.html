@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Close Ticket</title>
+</head>
+<body>
+    <h1>Close Ticket</h1>
+    <p>Ticket ID: {{ ticket.get_id() }}</p>
+    <p>Current Status: {{ ticket.get_status() }}</p>
+    
+    {% if message %}
+        <p style="color: red;">{{ message }}</p>
+    {% endif %}
+    
+    <form method="POST">
+        <p>Are you sure you want to close this ticket?</p>
+        <input type="submit" value="Yes, Close Ticket">
+        <a href="/view_tickets">Cancel</a>
+    </form>
+</body>
+</html>
