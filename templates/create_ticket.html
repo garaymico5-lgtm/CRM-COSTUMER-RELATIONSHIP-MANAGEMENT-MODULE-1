@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Support Ticket</title>
+</head>
+<body>
+    <h1>Create Support Ticket</h1>
+    
+    {% if message %}
+        <p style="color: green">{{ message }}</p>
+    {% endif %}
+    
+    <form method="POST">
+        <label>Select Customer:</label>
+        <select name="customer_id" required>
+            <option value="">-- Select Customer --</option>
+            <!-- Customers will appear here if Flask is working -->
+        </select><br><br>
+        
+        <label>Description:</label><br>
+        <textarea name="description" rows="5" cols="40" placeholder="Describe your issue..." required></textarea><br><br>
+        
+        <label>Priority Level:</label>
+        <select name="priority" required>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Critical">Critical</option>
+        </select><br><br>
+        
+        <input type="submit" value="Create Ticket">
+    </form>
+    <br>
+    <a href="/">Back to Menu</a>
+</body>
+</html>
