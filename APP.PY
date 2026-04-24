@@ -337,27 +337,6 @@ def view_interaction():
     return render_template("view_interaction.html", customer=customer, interactions=interactions, message=message)
 
 
-@app.route("/update_interaction/<interaction_id>", methods=["GET", "POST"])
-def update_interaction(interaction_id):
-    if "user" not in session:
-        return redirect(url_for("login"))
-
-    interaction = im.get_by_id(interaction_id)
-    if not interaction:
-        return "Interaction not found"
-
-    message = ""
-    if request.method == "POST":
-        new_notes = request.form.get("notes")
-        result = im.update_interaction(interaction_id, new_notes)
-        if result == "Interaction updated successfully":
-            return redirect(url_for("view_interaction"))
-        else:
-            message = result
-
-    return render_template("update_interaction.html", interaction=interaction, message=message)
-
-
 @app.route("/delete_interaction/<interaction_id>")
 def delete_interaction(interaction_id):
     if "user" not in session:
