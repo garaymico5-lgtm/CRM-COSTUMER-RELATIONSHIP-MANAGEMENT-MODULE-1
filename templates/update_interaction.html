@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Interaction - CRM</title>
+</head>
+<body>
+
+    <h2>Update Interaction</h2>
+    <p>Module 2 — Edit interaction notes</p>
+
+    <div>
+        <p><strong>Interaction ID:</strong> {{ interaction.get_id() }}</p>
+        <p><strong>Type:</strong> {{ interaction.get_type() }}</p>
+        <p><strong>Date & Time:</strong> {{ interaction.get_datetime() }}</p>
+    </div>
+
+    {% if message %}
+        <div>
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+
+        <div>
+            <label>Update Notes</label><br>
+            <textarea name="notes" required>{{ interaction.get_notes() }}</textarea>
+        </div>
+
+        <br>
+
+        <a href="{{ url_for('view_interaction') }}">Cancel</a>
+        <button type="submit">Save Changes</button>
+
+    </form>
+
+</body>
+</html>
