@@ -1,42 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Create Support Ticket</title>
+    <title>Create Ticket</title>
 </head>
 <body>
     <h1>Create Support Ticket</h1>
-    
-    {% if message %}
-        <p style="color: blue;">{{ message }}</p>
-    {% endif %}
-    
+    {% if message %}<p>{{ message }}</p>{% endif %}
     <form method="POST">
-        <label>Select Customer:</label>
-        <select name="customer_id" required>
-            <option value="">-- Select Customer --</option>
-            {% for customer in customers %}
-                <option value="{{ customer.get_id() }}">{{ customer.get_id() }} - {{ customer.get_name() }}</option>
-            {% endfor %}
-        </select>
-        <br><br>
-        
-        <label>Description:</label><br>
-        <textarea name="description" rows="5" cols="40" required></textarea>
-        <br><br>
-        
-        <label>Priority:</label>
-        <select name="priority" required>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-            <option value="Critical">Critical</option>
-        </select>
-        <br><br>
-        
-        <input type="submit" value="Create Ticket">
+        Customer: <select name="customer_id">
+            {% for c in customers %}<option value="{{ c.get_id() }}">{{ c.get_id() }} - {{ c.get_name() }}</option>{% endfor %}
+        </select><br><br>
+        Description: <textarea name="description" rows="5" cols="40" required></textarea><br><br>
+        Priority: 
+        <select name="priority">
+            <option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
+        </select><br><br>
+        <input type="submit" value="Create">
+        <a href="/">Cancel</a>
     </form>
-    
-    <br>
-    <a href="/">Back to Menu</a>
 </body>
 </html>

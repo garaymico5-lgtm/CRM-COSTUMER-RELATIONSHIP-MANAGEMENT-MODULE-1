@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Tickets</title>
+</head>
+<body>
+    <h1>My Support Tickets</h1>
+    
+    <a href="/customer_create_ticket">Create New Ticket</a>
+    <br><br>
+    
+    {% if tickets %}
+        <table border="1">
+            <tr>
+                <th>Ticket ID</th>
+                <th>Description</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Created Date</th>
+            </tr>
+            {% for ticket in tickets %}
+            <tr>
+                <td>{{ ticket.get_id() }}</td>
+                <td>{{ ticket.get_description() }}</td>
+                <td>{{ ticket.get_priority() }}</td>
+                <td>{{ ticket.get_status() }}</td>
+                <td>{{ ticket.get_created_date() }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No tickets found. <a href="/customer_create_ticket">Create a ticket</a></p>
+    {% endif %}
+    
+    <br>
+    <a href="/customer_home">Back to Menu</a>
+</body>
+</html>

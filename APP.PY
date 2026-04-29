@@ -9,11 +9,13 @@ app.secret_key = "secret123"
 # MODULE 1: CUSTOMER MANAGEMENT
 # ============================================================
 
+
 class Customer:
-    def __init__(self, customer_id, name, contact):
+    def __init__(self, customer_id, name, contact, password):
         self.__customer_id = customer_id
         self.__name = name
         self.__contact = contact
+        self.__password = password
 
     def get_id(self):
         return self.__customer_id
@@ -23,6 +25,9 @@ class Customer:
 
     def get_contact(self):
         return self.__contact
+    
+    def get_password(self):
+        return self.__password
 
     def set_name(self, name):
         self.__name = name
@@ -35,18 +40,18 @@ class CRM:
     def __init__(self):
         self.customers = []
 
-    def add_customer(self, cid, name, contact):
+    def add_customer(self, cid, name, contact, password):
         for c in self.customers:
             if c.get_id() == cid:
                 return "Customer ID already exists"
 
-        if not name or not contact:
-            return "Invalid name or email"
+        if not name or not contact or not password:
+            return "All fields required"
 
         if "@" not in contact:
             return "Invalid email"
 
-        customer = Customer(cid, name, contact)
+        customer = Customer(cid, name, contact, password)
         self.customers.append(customer)
         return "Added successfully"
 
@@ -59,11 +64,18 @@ class CRM:
                 self.customers.remove(c)
                 return "Deleted successfully"
         return "Customer not found"
+    
+    def authenticate(self, customer_id, password):
+        for c in self.customers:
+            if c.get_id() == customer_id and c.get_password() == password:
+                return c
+        return None
 
 
 # ============================================================
 # MODULE 2: INTERACTION / COMMUNICATION MANAGEMENT
 # ============================================================
+
 
 class Interaction:
     def __init__(self, interaction_id, customer_id, interaction_type, date_time, notes):
@@ -91,12 +103,6 @@ class Interaction:
     def set_notes(self, notes):
         self.__notes = notes
 
-    def set_type(self, interaction_type):
-        self.__interaction_type = interaction_type
-
-    def set_datetime(self, date_time):
-        self.__date_time = date_time
-
 
 class InteractionManager:
     def __init__(self):
@@ -110,11 +116,11 @@ class InteractionManager:
 
     def add_interaction(self, customer_id, interaction_type, date_time, notes):
         if not interaction_type:
-            return "Interaction type is required"
+            return "Interaction type required"
         if not date_time:
-            return "Date/Time is required"
+            return "Date/Time required"
         if not notes:
-            return "Notes cannot be empty"
+            return "Notes required"
         iid = self.generate_id()
         interaction = Interaction(iid, customer_id, interaction_type, date_time, notes)
         self.interactions.append(interaction)
@@ -131,12 +137,12 @@ class InteractionManager:
 
     def update_interaction(self, interaction_id, new_notes):
         if not new_notes:
-            return "Notes cannot be empty"
+            return "Notes required"
         interaction = self.get_by_id(interaction_id)
         if not interaction:
             return "Interaction not found"
         interaction.set_notes(new_notes)
-        return "Interaction updated successfully"
+        return "Interaction updated"
 
     def delete_interaction(self, interaction_id):
         interaction = self.get_by_id(interaction_id)
@@ -145,24 +151,23 @@ class InteractionManager:
         self.interactions.remove(interaction)
         return True
 
-
 # ============================================================
 # MODULE 3: SUPPORT TICKET SYSTEM
 # ============================================================
+
 
 class SupportTicket:
     VALID_PRIORITIES = ["Low", "Medium", "High", "Critical"]
     VALID_STATUSES = ["Open", "In Progress", "Resolved", "Closed"]
     
-    def __init__(self, ticket_id, customer_id, description, priority, status="Open"):
+    def __init__(self, ticket_id, customer_id, description, priority):
         self.__ticket_id = ticket_id
         self.__customer_id = customer_id
         self.__description = description
         self.__priority = priority
-        self.__status = status
+        self.__status = "Open"
         self.__created_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.__history = []
-        self.__add_to_history(f"Ticket created with status: {status}, priority: {priority}")
+        self.__history = [f"[{self.__created_date}] Ticket created"]
     
     def get_id(self):
         return self.__ticket_id
@@ -185,23 +190,15 @@ class SupportTicket:
     def get_history(self):
         return self.__history
     
-    def __add_to_history(self, action):
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.__history.append(f"[{timestamp}] {action}")
-    
     def set_priority(self, priority):
         if priority in self.VALID_PRIORITIES:
-            old_priority = self.__priority
             self.__priority = priority
-            self.__add_to_history(f"Priority changed from {old_priority} to {priority}")
             return True
         return False
     
     def set_status(self, status):
         if status in self.VALID_STATUSES:
-            old_status = self.__status
             self.__status = status
-            self.__add_to_history(f"Status changed from {old_status} to {status}")
             return True
         return False
 
@@ -218,13 +215,13 @@ class TicketManager:
     
     def create_ticket(self, customer_id, description, priority):
         if priority not in SupportTicket.VALID_PRIORITIES:
-            return "Invalid priority level"
-        if not description or not description.strip():
-            return "Description cannot be empty"
+            return "Invalid priority"
+        if not description:
+            return "Description required"
         ticket_id = self.generate_id()
-        ticket = SupportTicket(ticket_id, customer_id, description, priority, "Open")
+        ticket = SupportTicket(ticket_id, customer_id, description, priority)
         self.tickets.append(ticket)
-        return f"Ticket created successfully! ID: {ticket_id}"
+        return f"Ticket created! ID: {ticket_id}"
     
     def get_ticket_by_id(self, ticket_id):
         for ticket in self.tickets:
@@ -240,12 +237,12 @@ class TicketManager:
     
     def update_ticket_priority(self, ticket_id, new_priority):
         if new_priority not in SupportTicket.VALID_PRIORITIES:
-            return "Invalid priority level"
+            return "Invalid priority"
         ticket = self.get_ticket_by_id(ticket_id)
         if not ticket:
             return "Ticket not found"
         ticket.set_priority(new_priority)
-        return f"Priority updated to {new_priority}"
+        return "Priority updated"
     
     def update_ticket_status(self, ticket_id, new_status):
         if new_status not in SupportTicket.VALID_STATUSES:
@@ -253,17 +250,8 @@ class TicketManager:
         ticket = self.get_ticket_by_id(ticket_id)
         if not ticket:
             return "Ticket not found"
-        current_status = ticket.get_status()
-        if new_status == "Closed" and current_status not in ["Resolved", "In Progress"]:
-            return "Cannot close ticket yet. Ticket must be Resolved or In Progress first"
         ticket.set_status(new_status)
-        return f"Status updated to {new_status}"
-    
-    def get_ticket_history(self, ticket_id):
-        ticket = self.get_ticket_by_id(ticket_id)
-        if not ticket:
-            return None
-        return ticket.get_history()
+        return "Status updated"
     
     def delete_ticket(self, ticket_id):
         ticket = self.get_ticket_by_id(ticket_id)
@@ -271,59 +259,231 @@ class TicketManager:
             self.tickets.remove(ticket)
             return True
         return False
+    
+
+# ============================================================
+# MODULE 4: SYSTEM MANAGEMENT (User Management)
+# ============================================================
+# ============================================================
+
+class SystemUser:
+    ROLES = ["Admin", "Staff", "Support"]
+    
+    def __init__(self, user_id, username, password, role):
+        self.__user_id = user_id
+        self.__username = username
+        self.__password = password
+        self.__role = role
+        self.__created_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    def get_user_id(self):
+        return self.__user_id
+    
+    def get_username(self):
+        return self.__username
+    
+    def get_password(self):
+        return self.__password
+    
+    def get_role(self):
+        return self.__role
+    
+    def get_created_date(self):
+        return self.__created_date
+    
+    def set_username(self, username):
+        self.__username = username
+    
+    def set_password(self, password):
+        self.__password = password
+    
+    def set_role(self, role):
+        if role in self.ROLES:
+            self.__role = role
+            return True
+        return False
+
+
+class UserManager:
+    def __init__(self):
+        self.users = []
+        self.__counter = 1
+        # Create default admin
+        self._create_default_admin()
+    
+    def _create_default_admin(self):
+        default_admin = SystemUser("USR001", "admin", "1234", "Admin")
+        self.users.append(default_admin)
+        self.__counter = 2
+    
+    def generate_id(self):
+        uid = f"USR{self.__counter:03d}"
+        self.__counter += 1
+        return uid
+    
+    def is_username_unique(self, username):
+        for user in self.users:
+            if user.get_username() == username:
+                return False
+        return True
+    
+    def add_user(self, username, password, role):
+        # Check unique username
+        if not self.is_username_unique(username):
+            return "Username already exists"
+        
+        # Check password
+        if not password or password.strip() == "":
+            return "Password cannot be empty"
+        
+        # Check role
+        if role not in SystemUser.ROLES:
+            return f"Invalid role. Choose: Admin, Staff, Support"
+        
+        user_id = self.generate_id()
+        user = SystemUser(user_id, username, password, role)
+        self.users.append(user)
+        return f"User added successfully! User ID: {user_id}"
+    
+    def get_all_users(self):
+        return self.users
+    
+    def get_user_by_id(self, user_id):
+        for user in self.users:
+            if user.get_user_id() == user_id:
+                return user
+        return None
+    
+    def get_user_by_username(self, username):
+        for user in self.users:
+            if user.get_username() == username:
+                return user
+        return None
+    
+    def update_user(self, user_id, new_username=None, new_password=None, new_role=None):
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return "User not found"
+        
+        if new_username:
+            if not self.is_username_unique(new_username) and new_username != user.get_username():
+                return "Username already exists"
+            user.set_username(new_username)
+        
+        if new_password:
+            if not new_password.strip():
+                return "Password cannot be empty"
+            user.set_password(new_password)
+        
+        if new_role:
+            if new_role not in SystemUser.ROLES:
+                return "Invalid role"
+            user.set_role(new_role)
+        
+        return "User updated successfully"
+    
+    def delete_user(self, user_id):
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return False
+        # Cannot delete default admin
+        if user.get_username() == "admin":
+            return False
+        self.users.remove(user)
+        return True
+    
+    def authenticate(self, username, password):
+        user = self.get_user_by_username(username)
+        if user and user.get_password() == password:
+            return user
+        return None
+
 
 
 # ============================================================
 # GLOBAL INSTANCES
 # ============================================================
 
-USERNAME = "admin"
-PASSWORD = "1234"
 
 crm = CRM()
 im = InteractionManager()
 tm = TicketManager()
+um = UserManager()
 
+# SAMPLE DATA FOR TESTING
+sample_customer = Customer("CUST001", "Juan Dela Cruz", "juan@email.com", "1234")
+crm.customers.append(sample_customer)
 
 # ============================================================
-# MODULE 1 ROUTES
+# LOGIN ROUTE (Authentication)
+# ============================================================
 # ============================================================
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     message = ""
+    
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        if username == USERNAME and password == PASSWORD:
+        
+        # Check admin login
+        if username == "admin" and password == "1234":
             session["user"] = username
+            session["role"] = "Admin"
+            session["type"] = "admin"
             return redirect(url_for("home"))
-        else:
-            message = "Invalid username or password"
+        
+        # Check customer login
+        customer = crm.authenticate(username, password)
+        if customer:
+            session["user"] = customer.get_id()
+            session["name"] = customer.get_name()
+            session["role"] = "Customer"
+            session["type"] = "customer"
+            return redirect(url_for("customer_home"))
+        
+        message = "Invalid username or password"
+    
     return render_template("login.html", message=message)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+# ===========================================================
+# MODULE 1 ROUTES (Customer Management)
+# ============================================================
 
 
 @app.route("/")
 def home():
     if "user" not in session:
         return redirect(url_for("login"))
+    if session.get("type") == "customer":
+        return redirect(url_for("customer_home"))
     return render_template("menu.html")
 
 
 @app.route("/add", methods=["GET", "POST"])
 def add():
+    if "user" not in session or session.get("type") == "customer":
+        return redirect(url_for("login"))
     message = ""
     if request.method == "POST":
         cid = request.form["id"]
         name = request.form["name"]
         contact = request.form["contact"]
-        message = crm.add_customer(cid, name, contact)
+        password = request.form["password"]
+        message = crm.add_customer(cid, name, contact, password)
     return render_template("add.html", message=message)
 
 
 @app.route("/view")
 def view():
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     customers = crm.get_all()
     return render_template("view.html", customers=customers)
@@ -331,7 +491,7 @@ def view():
 
 @app.route("/edit/<cid>", methods=["GET", "POST"])
 def edit(cid):
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     customer = None
     for c in crm.get_all():
@@ -340,24 +500,18 @@ def edit(cid):
             break
     if not customer:
         return "Customer not found"
-    message = ""
     if request.method == "POST":
         new_name = request.form.get("name")
         new_contact = request.form.get("contact")
-        if not new_name or not new_contact:
-            message = "Invalid input"
-        elif "@" not in new_contact:
-            message = "Invalid email"
-        else:
-            customer.set_name(new_name)
-            customer.set_contact(new_contact)
-            return redirect(url_for("view"))
-    return render_template("edit.html", customer=customer, message=message)
+        customer.set_name(new_name)
+        customer.set_contact(new_contact)
+        return redirect(url_for("view"))
+    return render_template("edit.html", customer=customer)
 
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     customer = None
     message = ""
@@ -374,25 +528,20 @@ def search():
 
 @app.route("/delete/<cid>")
 def delete(cid):
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     crm.delete_customer(cid)
     return redirect(url_for("view"))
 
 
-@app.route("/logout")
-def logout():
-    session.pop("user", None)
-    return redirect(url_for("login"))
-
-
 # ============================================================
-# MODULE 2 ROUTES
+# MODULE 2 ROUTES (Interaction Management)
 # ============================================================
+
 
 @app.route("/add_interaction", methods=["GET", "POST"])
 def add_interaction():
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     message = ""
     customers = crm.get_all()
@@ -415,7 +564,7 @@ def add_interaction():
 
 @app.route("/view_interactions", methods=["GET", "POST"])
 def view_interaction():
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     customer = None
     interactions = []
@@ -432,44 +581,38 @@ def view_interaction():
         else:
             interactions = im.get_by_customer(customer_id)
             if not interactions:
-                message = "No interactions found"
+                message = "No interactions"
     return render_template("view_interaction.html", customer=customer, interactions=interactions, message=message, customers=customers)
 
 
 @app.route("/update_interaction/<interaction_id>", methods=["GET", "POST"])
 def update_interaction(interaction_id):
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     interaction = im.get_by_id(interaction_id)
     if not interaction:
-        return "Interaction not found"
-    message = ""
+        return "Not found"
     if request.method == "POST":
         new_notes = request.form.get("notes")
-        result = im.update_interaction(interaction_id, new_notes)
-        if result == "Interaction updated successfully":
-            return redirect(url_for("view_interaction"))
-        else:
-            message = result
-    return render_template("update_interaction.html", interaction=interaction, message=message)
+        im.update_interaction(interaction_id, new_notes)
+        return redirect(url_for("view_interaction"))
+    return render_template("update_interaction.html", interaction=interaction)
 
 
-@app.route("/delete_interaction/<interaction_id>", methods=["GET", "POST"])
+@app.route("/delete_interaction/<interaction_id>")
 def delete_interaction(interaction_id):
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-    if request.method == "POST":
-        im.delete_interaction(interaction_id)
+    im.delete_interaction(interaction_id)
     return redirect(url_for("view_interaction"))
 
-
 # ============================================================
-# MODULE 3 ROUTES
+# MODULE 3 ROUTES (Support Ticket System)
 # ============================================================
 
 @app.route("/create_ticket", methods=["GET", "POST"])
 def create_ticket():
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     message = ""
     customers = crm.get_all()
@@ -477,22 +620,14 @@ def create_ticket():
         customer_id = request.form.get("customer_id")
         description = request.form.get("description")
         priority = request.form.get("priority")
-        customer = None
-        for c in customers:
-            if c.get_id() == customer_id:
-                customer = c
-                break
-        if not customer:
-            message = "Invalid customer"
-        else:
-            result = tm.create_ticket(customer_id, description, priority)
-            message = result
+        result = tm.create_ticket(customer_id, description, priority)
+        message = result
     return render_template("create_ticket.html", message=message, customers=customers)
 
 
 @app.route("/view_tickets", methods=["GET", "POST"])
 def view_tickets():
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     tickets = []
     message = ""
@@ -501,95 +636,180 @@ def view_tickets():
         customer_id = request.form.get("customer_id")
         if customer_id == "all":
             tickets = tm.get_all_tickets()
-            if not tickets:
-                message = "No tickets found"
         else:
-            customer = None
-            for c in customers:
-                if c.get_id() == customer_id:
-                    customer = c
-                    break
-            if not customer:
-                message = "Customer not found"
-            else:
-                tickets = tm.get_tickets_by_customer(customer_id)
-                if not tickets:
-                    message = "No tickets found for this customer"
+            tickets = tm.get_tickets_by_customer(customer_id)
+        if not tickets:
+            message = "No tickets"
     return render_template("view_tickets.html", tickets=tickets, message=message, customers=customers)
 
 
 @app.route("/update_ticket_priority/<ticket_id>", methods=["GET", "POST"])
 def update_ticket_priority(ticket_id):
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     ticket = tm.get_ticket_by_id(ticket_id)
-    if not ticket:
-        return "Ticket not found"
-    message = ""
     if request.method == "POST":
         new_priority = request.form.get("priority")
-        result = tm.update_ticket_priority(ticket_id, new_priority)
-        if "updated" in result.lower():
-            return redirect(url_for("view_tickets"))
-        else:
-            message = result
-    return render_template("update_ticket_priority.html", ticket=ticket, message=message)
+        tm.update_ticket_priority(ticket_id, new_priority)
+        return redirect(url_for("view_tickets"))
+    return render_template("update_ticket_priority.html", ticket=ticket)
 
 
 @app.route("/update_ticket_status/<ticket_id>", methods=["GET", "POST"])
 def update_ticket_status(ticket_id):
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     ticket = tm.get_ticket_by_id(ticket_id)
-    if not ticket:
-        return "Ticket not found"
-    message = ""
     if request.method == "POST":
         new_status = request.form.get("status")
-        result = tm.update_ticket_status(ticket_id, new_status)
-        if "updated" in result.lower() or "marked" in result.lower():
-            return redirect(url_for("view_tickets"))
-        else:
-            message = result
-    return render_template("update_ticket_status.html", ticket=ticket, message=message)
-
-
-@app.route("/close_ticket/<ticket_id>", methods=["GET", "POST"])
-def close_ticket(ticket_id):
-    if "user" not in session:
-        return redirect(url_for("login"))
-    ticket = tm.get_ticket_by_id(ticket_id)
-    if not ticket:
-        return "Ticket not found"
-    message = ""
-    current_status = ticket.get_status()
-    if current_status not in ["Resolved", "In Progress"]:
-        message = "Cannot close yet. Ticket must be Resolved or In Progress first."
-        return render_template("close_ticket.html", ticket=ticket, message=message)
-    if request.method == "POST":
-        tm.update_ticket_status(ticket_id, "Closed")
+        tm.update_ticket_status(ticket_id, new_status)
         return redirect(url_for("view_tickets"))
-    return render_template("close_ticket.html", ticket=ticket, message=message)
-
-
-@app.route("/ticket_history/<ticket_id>")
-def ticket_history(ticket_id):
-    if "user" not in session:
-        return redirect(url_for("login"))
-    ticket = tm.get_ticket_by_id(ticket_id)
-    if not ticket:
-        return "Ticket not found"
-    history = tm.get_ticket_history(ticket_id)
-    return render_template("ticket_history.html", ticket=ticket, history=history)
+    return render_template("update_ticket_status.html", ticket=ticket)
 
 
 @app.route("/delete_ticket/<ticket_id>")
 def delete_ticket(ticket_id):
-    if "user" not in session:
+    if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     tm.delete_ticket(ticket_id)
     return redirect(url_for("view_tickets"))
 
+# ============================================================
+# CUSTOMER ROUTES Para sa mga customer lang 
+# ============================================================
+
+
+@app.route("/customer_home")
+def customer_home():
+    if "user" not in session or session.get("type") != "customer":
+        return redirect(url_for("login"))
+    return render_template("customer_menu.html", name=session.get("name"), id=session.get("user"))
+
+
+@app.route("/customer_tickets")
+def customer_tickets():
+    if "user" not in session or session.get("type") != "customer":
+        return redirect(url_for("login"))
+    customer_id = session.get("user")
+    tickets = tm.get_tickets_by_customer(customer_id)
+    return render_template("customer_tickets.html", tickets=tickets)
+
+
+@app.route("/customer_create_ticket", methods=["GET", "POST"])
+def customer_create_ticket():
+    if "user" not in session or session.get("type") != "customer":
+        return redirect(url_for("login"))
+    message = ""
+    if request.method == "POST":
+        customer_id = session.get("user")
+        description = request.form.get("description")
+        priority = request.form.get("priority")
+        message = tm.create_ticket(customer_id, description, priority)
+    return render_template("customer_create_ticket.html", message=message)
+
+
+@app.route("/customer_interactions")
+def customer_interactions():
+    if "user" not in session or session.get("type") != "customer":
+        return redirect(url_for("login"))
+    customer_id = session.get("user")
+    interactions = im.get_by_customer(customer_id)
+    return render_template("customer_interactions.html", interactions=interactions)
+
+# ============================================================
+# MODULE 4 ROUTES (System Management)
+# ============================================================
+
+@app.route("/add_user", methods=["GET", "POST"])
+def add_user():
+    if "user" not in session or session.get("type") == "customer":
+        return redirect(url_for("login"))
+    
+    message = ""
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        role = request.form.get("role")
+        result = um.add_user(username, password, role)
+        message = result
+        if "successfully" in result.lower():
+            return redirect(url_for("view_users"))
+    
+    return render_template("add_user.html", message=message, roles=SystemUser.ROLES)
+
+
+@app.route("/view_users")
+def view_users():
+    if "user" not in session or session.get("type") == "customer":
+        return redirect(url_for("login"))
+    
+    users = um.get_all_users()
+    return render_template("view_users.html", users=users)
+
+
+@app.route("/edit_user/<user_id>", methods=["GET", "POST"])
+def edit_user(user_id):
+    if "user" not in session or session.get("type") == "customer":
+        return redirect(url_for("login"))
+    
+    user = um.get_user_by_id(user_id)
+    if not user:
+        return "User not found"
+    
+    message = ""
+    if request.method == "POST":
+        new_username = request.form.get("username")
+        new_password = request.form.get("password")
+        new_role = request.form.get("role")
+        result = um.update_user(user_id, new_username, new_password, new_role)
+        message = result
+        if "successfully" in result.lower():
+            return redirect(url_for("view_users"))
+    
+    return render_template("edit_user.html", user=user, message=message, roles=SystemUser.ROLES)
+
+
+@app.route("/assign_role/<user_id>", methods=["GET", "POST"])
+def assign_role(user_id):
+    if "user" not in session or session.get("type") == "customer":
+        return redirect(url_for("login"))
+    
+    user = um.get_user_by_id(user_id)
+    if not user:
+        return "User not found"
+    
+    message = ""
+    if request.method == "POST":
+        new_role = request.form.get("role")
+        result = um.update_user(user_id, None, None, new_role)
+        message = result
+        if "successfully" in result.lower():
+            return redirect(url_for("view_users"))
+    
+    return render_template("assign_role.html", user=user, message=message, roles=SystemUser.ROLES)
+
+
+@app.route("/delete_user/<user_id>", methods=["GET", "POST"])
+def delete_user(user_id):
+    if "user" not in session or session.get("type") == "customer":
+        return redirect(url_for("login"))
+    
+    user = um.get_user_by_id(user_id)
+    if not user:
+        return "User not found"
+    
+    if user.get_username() == "admin":
+        return "Cannot delete the default admin user"
+    
+    if request.method == "POST":
+        um.delete_user(user_id)
+        return redirect(url_for("view_users"))
+    
+    return render_template("delete_user.html", user=user)
+
+# ============================================================
+# RUN THE APP
+# ============================================================
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete User</title>
+</head>
+<body>
+    <h1>Delete User Account</h1>
+    <p>Are you sure you want to delete this user?</p>
+    <p><strong>Username:</strong> {{ user.get_username() }}</p>
+    <p><strong>User ID:</strong> {{ user.get_user_id() }}</p>
+    <p><strong>Role:</strong> {{ user.get_role() }}</p>
+    
+    <form method="POST">
+        <input type="submit" value="Confirm Delete">
+        <a href="/view_users">Cancel</a>
+    </form>
+</body>
+</html>

@@ -4,24 +4,15 @@
     <title>Update Priority</title>
 </head>
 <body>
-    <h1>Update Ticket Priority</h1>
-    <p>Ticket ID: {{ ticket.get_id() }}</p>
-    <p>Current Priority: <strong>{{ ticket.get_priority() }}</strong></p>
-    
-    {% if message %}
-        <p style="color: red;">{{ message }}</p>
-    {% endif %}
-    
+    <h1>Update Priority</h1>
+    <p>Ticket: {{ ticket.get_id() }}</p>
+    <p>Current Priority: {{ ticket.get_priority() }}</p>
     <form method="POST">
-        <label>New Priority:</label>
-        <select name="priority" required>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-            <option value="Critical">Critical</option>
-        </select>
-        <br><br>
-        <input type="submit" value="Update Priority">
+        New Priority:
+        <select name="priority">
+            <option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
+        </select><br><br>
+        <input type="submit" value="Update">
         <a href="/view_tickets">Cancel</a>
     </form>
 </body>

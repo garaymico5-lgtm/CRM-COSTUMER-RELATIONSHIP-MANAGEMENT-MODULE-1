@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Users</title>
+</head>
+<body>
+    <h1>System Users</h1>
+    <a href="/add_user">Add New User</a>
+    <br><br>
+    
+    <table border="1">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Created Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <tr>{{ user.get_user_id() }}</td>
+                <td>{{ user.get_username() }} {% if user.get_username() == 'admin' %}(Default){% endif %}</td>
+                <td>{{ user.get_role() }}</td>
+                <td>{{ user.get_created_date() }}</td>
+                <td>
+                    <a href="/edit_user/{{ user.get_user_id() }}">Edit</a> |
+                    <a href="/assign_role/{{ user.get_user_id() }}">Assign Role</a> |
+                    {% if user.get_username() != 'admin' %}
+                        <a href="/delete_user/{{ user.get_user_id() }}" onclick="return confirm('Delete this user?')">Delete</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <br>
+    <a href="/">Back to Menu</a>
+</body>
+</html>

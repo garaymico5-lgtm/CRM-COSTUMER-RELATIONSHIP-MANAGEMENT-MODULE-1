@@ -1,18 +1,18 @@
-<h2>Add Customer</h2>
-
-<form method="POST">
-    ID: <input name="id" required><br>
-    Name: <input name="name" required><br>
-    Email: <input type="email" name="contact" required><br>
-    <button>Add</button>
-</form>
-
-{% if message %}
-    {% if "successfully" in message %}
-        <p style="color:green;">{{ message }}</p>
-    {% else %}
-        <p style="color:red;">{{ message }}</p>
-    {% endif %}
-{% endif %}
-
-<a href="/">Back</a>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Customer</title>
+</head>
+<body>
+    <h1>Add Customer</h1>
+    {% if message %}<p>{{ message }}</p>{% endif %}
+    <form method="POST">
+        Customer ID: <input type="text" name="id" required><br><br>
+        Name: <input type="text" name="name" required><br><br>
+        Email: <input type="email" name="contact" required><br><br>
+        Password: <input type="password" name="password" required><br><br>
+        <input type="submit" value="Add">
+        <a href="/">Cancel</a>
+    </form>
+</body>
+</html>

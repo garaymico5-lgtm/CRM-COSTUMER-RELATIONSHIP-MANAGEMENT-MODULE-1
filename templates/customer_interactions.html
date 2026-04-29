@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Interactions</title>
+</head>
+<body>
+    <h1>My Interactions</h1>
+    <table border="1">
+        <tr><th>ID</th><th>Type</th><th>Date/Time</th><th>Notes</th></tr>
+        {% for i in interactions %}
+        <tr><td>{{ i.get_id() }}</td><td>{{ i.get_type() }}</td><td>{{ i.get_datetime() }}</td><td>{{ i.get_notes() }}</td></tr>
+        {% endfor %}
+    </table>
+    <br><a href="/customer_home">Back</a>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Portal</title>
+</head>
+<body>
+    <h1>Customer Portal</h1>
+    <p>Welcome, {{ name }} ({{ id }})</p>
+    
+    <h2>My Tickets</h2>
+    <ul>
+        <li><a href="/customer_tickets">View My Tickets</a></li>
+        <li><a href="/customer_create_ticket">Create New Ticket</a></li>
+    </ul>
+    
+    <h2>My Interactions</h2>
+    <ul>
+        <li><a href="/customer_interactions">View My Interactions</a></li>
+    </ul>
+    
+    <br>
+    <a href="/logout">Logout</a>
+</body>
+</html>

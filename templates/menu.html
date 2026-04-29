@@ -1,9 +1,38 @@
-<h2>CRM MENU</h2>
-<a href="/add">Add Customer</a><br>
-<a href="/view">View Customers</a><br>
-<a href="/search">Search Customer</a><br>
-<a href="/add_interaction">Add Interaction</a><br>
-<a href="/view_interactions">View Interactions</a><br>
-<a href="/create_ticket">Create Ticket</a><br>
-<a href="/view_tickets">View Tickets</a><br>
-
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Menu</title>
+</head>
+<body>
+    <h1>CRM System - Admin Menu</h1>
+    <p>Welcome, {{ session.get('user') }}!</p>
+    
+    <h2>Module 1: Customer Management</h2>
+    <ul>
+        <li><a href="/add">Add Customer</a></li>
+        <li><a href="/view">View All Customers</a></li>
+        <li><a href="/search">Search Customer</a></li>
+    </ul>
+    
+    <h2>Module 2: Interaction Management</h2>
+    <ul>
+        <li><a href="/add_interaction">Add Interaction</a></li>
+        <li><a href="/view_interactions">View Interactions</a></li>
+    </ul>
+    
+    <h2>Module 3: Support Ticket System</h2>
+    <ul>
+        <li><a href="/create_ticket">Create Ticket</a></li>
+        <li><a href="/view_tickets">View Tickets</a></li>
+    </ul>
+    
+    <h2>Module 4: System Management</h2>
+    <ul>
+        <li><a href="/add_user">Add System User</a></li>
+        <li><a href="/view_users">View/Manage Users</a></li>
+    </ul>
+    
+    <br>
+    <a href="/logout">Logout</a>
+</body>
+</html>

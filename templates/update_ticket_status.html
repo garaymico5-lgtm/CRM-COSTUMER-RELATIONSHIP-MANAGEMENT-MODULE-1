@@ -4,24 +4,15 @@
     <title>Update Status</title>
 </head>
 <body>
-    <h1>Update Ticket Status</h1>
-    <p>Ticket ID: {{ ticket.get_id() }}</p>
-    <p>Current Status: <strong>{{ ticket.get_status() }}</strong></p>
-    
-    {% if message %}
-        <p style="color: red;">{{ message }}</p>
-    {% endif %}
-    
+    <h1>Update Status</h1>
+    <p>Ticket: {{ ticket.get_id() }}</p>
+    <p>Current Status: {{ ticket.get_status() }}</p>
     <form method="POST">
-        <label>New Status:</label>
-        <select name="status" required>
-            <option value="Open">Open</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Resolved">Resolved</option>
-            <option value="Closed">Closed</option>
-        </select>
-        <br><br>
-        <input type="submit" value="Update Status">
+        New Status:
+        <select name="status">
+            <option>Open</option><option>In Progress</option><option>Resolved</option><option>Closed</option>
+        </select><br><br>
+        <input type="submit" value="Update">
         <a href="/view_tickets">Cancel</a>
     </form>
 </body>

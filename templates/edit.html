@@ -1,13 +1,15 @@
-<h2>Edit Customer</h2>
-
-<form method="POST">
-    Name: <input name="name" value="{{ customer.get_name() }}" required><br>
-    Email: <input type="email" name="contact" value="{{ customer.get_contact() }}" required><br>
-    <button>Update</button>
-</form>
-
-{% if message %}
-<p style="color:red;">{{ message }}</p>
-{% endif %}
-
-<a href="{{ url_for('view') }}">Back to Customer List</a>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Customer</title>
+</head>
+<body>
+    <h1>Edit Customer</h1>
+    <form method="POST">
+        Name: <input type="text" name="name" value="{{ customer.get_name() }}" required><br><br>
+        Email: <input type="email" name="contact" value="{{ customer.get_contact() }}" required><br><br>
+        <input type="submit" value="Update">
+        <a href="/view">Cancel</a>
+    </form>
+</body>
+</html>
