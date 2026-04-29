@@ -2,31 +2,388 @@
 <html>
 <head>
     <title>View Interactions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-module {
+            margin-bottom: 20px;
+        }
+        
+        .menu-module h3 {
+            padding: 10px 25px;
+            font-size: 12px;
+            color: #8ba0b5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .menu-module ul {
+            list-style: none;
+        }
+        
+        .menu-module li a {
+            display: block;
+            padding: 10px 25px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .menu-module li a:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 35px;
+        }
+        
+        .logout-btn {
+            margin-top: 30px;
+            padding: 15px 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logout-btn a {
+            color: #e74c3c;
+            text-decoration: none;
+            display: block;
+            font-weight: bold;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            width: calc(100% - 280px);
+        }
+        
+        .page-title {
+            margin-bottom: 25px;
+        }
+        
+        .page-title h1 {
+            color: #2c3e50;
+            font-size: 28px;
+        }
+        
+        .page-title p {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        /* SEARCH CARD */
+        .search-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .btn-search {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* CUSTOMER CARD */
+        .customer-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .customer-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            padding: 15px 20px;
+        }
+        
+        .customer-header h2 {
+            font-size: 18px;
+        }
+        
+        .customer-info {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .customer-info p {
+            margin: 5px 0;
+        }
+        
+        /* TABLE */
+        .table-container {
+            padding: 0;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f8f9fa;
+            color: #2c3e50;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .type-call { background: #d4edda; color: #155724; }
+        .type-email { background: #cce5ff; color: #004085; }
+        .type-chat { background: #fff3cd; color: #856404; }
+        .type-visit { background: #e2e3e5; color: #383d41; }
+        
+        .action-links a {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 0 3px;
+            font-size: 12px;
+        }
+        
+        .edit-link {
+            background: #3498db;
+            color: white;
+        }
+        
+        .delete-link {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            background: #fff3cd;
+            color: #856404;
+            text-align: center;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #95a5a6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+        
+        .empty-row td {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
 </head>
 <body>
-    <h1>View Interactions</h1>
-    <form method="POST">
-        Customer: <select name="customer_id">
-            {% for c in customers %}<option value="{{ c.get_id() }}">{{ c.get_id() }} - {{ c.get_name() }}</option>{% endfor %}
-        </select>
-        <input type="submit" value="Search">
-    </form>
-    {% if customer %}
-        <h2>Customer: {{ customer.get_name() }}</h2>
-        <table border="1">
-            <tr><th>ID</th><th>Type</th><th>Date/Time</th><th>Notes</th><th>Actions</th></tr>
-            {% for i in interactions %}
-            <tr>
-                <td>{{ i.get_id() }}</td>
-                <td>{{ i.get_type() }}</td>
-                <td>{{ i.get_datetime() }}</td>
-                <td>{{ i.get_notes() }}</td>
-                <td><a href="/update_interaction/{{ i.get_id() }}">Edit</a> | <a href="/delete_interaction/{{ i.get_id() }}" onclick="return confirm('Delete?')">Delete</a></td>
-            </tr>
-            {% endfor %}
-        </table>
-    {% endif %}
-    {% if message %}<p>{{ message }}</p>{% endif %}
-    <br><a href="/">Back</a>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>CRM System</h2>
+            <p>Admin Panel</p>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-module">
+                <h3>Module 1</h3>
+                <ul><li><a href="/add">➕ Add Customer</a></li><li><a href="/view">📋 View Customers</a></li><li><a href="/search">🔍 Search Customer</a></li></ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 2</h3>
+                <ul><li><a href="/add_interaction">💬 Add Interaction</a></li><li><a href="/view_interactions">📖 View Interactions</a></li></ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 3</h3>
+                <ul><li><a href="/create_ticket">🎫 Create Ticket</a></li><li><a href="/view_tickets">📌 View Tickets</a></li></ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 4</h3>
+                <ul><li><a href="/add_user">👤 Add User</a></li><li><a href="/view_users">👥 Manage Users</a></li></ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 6</h3>
+                <ul><li><a href="/reports">📊 Reports</a></li></ul>
+            </div>
+        </div>
+        <div class="logout-btn"><a href="/logout">🚪 Logout</a></div>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-title">
+            <h1>View Interactions</h1>
+            <p>Search and manage customer interactions</p>
+        </div>
+        
+        <div class="search-card">
+            <form method="POST" class="search-form">
+                <div class="form-group">
+                    <label>Select Customer:</label>
+                    <select name="customer_id" required>
+                        {% for c in customers %}
+                            <option value="{{ c.get_id() }}">{{ c.get_id() }} - {{ c.get_name() }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn-search">🔍 Search</button>
+            </form>
+        </div>
+        
+        {% if customer %}
+            <div class="customer-card">
+                <div class="customer-header">
+                    <h2>📋 Customer: {{ customer.get_name() }}</h2>
+                </div>
+                <div class="customer-info">
+                    <p><strong>Customer ID:</strong> {{ customer.get_id() }}</p>
+                    <p><strong>Email:</strong> {{ customer.get_contact() }}</p>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Date/Time</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in interactions %}
+                            <tr>
+                                <td><strong>{{ i.get_id() }}</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>
+                                <td>
+                                    <span class="type-badge 
+                                        {% if i.get_type() == 'Call' %}type-call
+                                        {% elif i.get_type() == 'Email' %}type-email
+                                        {% elif i.get_type() == 'Chat' %}type-chat
+                                        {% else %}type-visit{% endif %}">
+                                        {{ i.get_type() }}
+                                    </span>
+                                </br>
+                                <td>{{ i.get_datetime() }}</br>
+                                <td>{{ i.get_notes()[:80] }}{% if i.get_notes()|length > 80 %}...{% endif %} </br>
+                                <td class="action-links">
+                                    <a href="/update_interaction/{{ i.get_id() }}" class="edit-link">✏️ Edit</a>
+                                    <a href="/delete_interaction/{{ i.get_id() }}" class="delete-link" onclick="return confirm('Delete this interaction?')">🗑️ Delete</a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr class="empty-row">
+                                <td colspan="5">No interactions found for this customer</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+        
+        {% if message %}
+            <div class="message">{{ message }}</div>
+        {% endif %}
+        
+        <a href="/" class="back-btn">← Back to Menu</a>
+    </div>
 </body>
 </html>

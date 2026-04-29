@@ -2,15 +2,251 @@
 <html>
 <head>
     <title>My Interactions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-module {
+            margin-bottom: 20px;
+        }
+        
+        .menu-module h3 {
+            padding: 10px 25px;
+            font-size: 12px;
+            color: #8db5e0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .menu-module ul {
+            list-style: none;
+        }
+        
+        .menu-module li a {
+            display: block;
+            padding: 10px 25px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .menu-module li a:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 35px;
+        }
+        
+        .logout-btn {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 15px 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logout-btn a {
+            color: #ff6b6b;
+            text-decoration: none;
+            display: block;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            width: calc(100% - 280px);
+        }
+        
+        .page-title {
+            margin-bottom: 25px;
+        }
+        
+        .page-title h1 {
+            color: #1e3c72;
+            font-size: 28px;
+        }
+        
+        .page-title p {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        /* TABLE CONTAINER */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #1e3c72;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .empty-row td {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #95a5a6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #7f8c8d;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .type-call { background: #d4edda; color: #155724; }
+        .type-email { background: #cce5ff; color: #004085; }
+        .type-chat { background: #fff3cd; color: #856404; }
+        .type-visit { background: #e2e3e5; color: #383d41; }
+    </style>
 </head>
 <body>
-    <h1>My Interactions</h1>
-    <table border="1">
-        <tr><th>ID</th><th>Type</th><th>Date/Time</th><th>Notes</th></tr>
-        {% for i in interactions %}
-        <tr><td>{{ i.get_id() }}</td><td>{{ i.get_type() }}</td><td>{{ i.get_datetime() }}</td><td>{{ i.get_notes() }}</td></tr>
-        {% endfor %}
-    </table>
-    <br><a href="/customer_home">Back</a>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Customer Portal</h2>
+            <p>Welcome, {{ session.get('name') }}</p>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-module">
+                <h3>My Support Tickets</h3>
+                <ul>
+                    <li><a href="/customer_tickets">📋 View My Tickets</a></li>
+                    <li><a href="/customer_create_ticket">➕ Create New Ticket</a></li>
+                </ul>
+            </div>
+            <div class="menu-module">
+                <h3>My Interactions</h3>
+                <ul>
+                    <li><a href="/customer_interactions">📖 View My Interactions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="logout-btn">
+            <a href="/logout">🚪 Logout</a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-title">
+            <h1>My Interaction History</h1>
+            <p>View all your past interactions with support team</p>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Date/Time</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in interactions %}
+                    <tr>
+                        <td><strong>{{ i.get_id() }}</strong></td>
+                        <td>
+                            <span class="type-badge 
+                                {% if i.get_type() == 'Call' %}type-call
+                                {% elif i.get_type() == 'Email' %}type-email
+                                {% elif i.get_type() == 'Chat' %}type-chat
+                                {% else %}type-visit{% endif %}">
+                                {{ i.get_type() }}
+                            </span>
+                        </td>
+                        <td>{{ i.get_datetime() }}</td>
+                        <td>{{ i.get_notes() }}</td>
+                    </tr>
+                    {% else %}
+                    <tr class="empty-row">
+                        <td colspan="4">No interactions found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <a href="/customer_home" class="back-btn">← Back to Menu</a>
+    </div>
 </body>
 </html>

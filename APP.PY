@@ -397,6 +397,120 @@ class UserManager:
         if user and user.get_password() == password:
             return user
         return None
+    
+# ============================================================
+# MODULE 5: REPORTING MANAGEMENT
+# ============================================================
+
+from collections import Counter
+from datetime import datetime, timedelta
+
+class ReportManager:
+    def __init__(self, crm, im, tm):
+        self.crm = crm
+        self.im = im
+        self.tm = tm
+    
+    def get_customer_report(self):
+        """Get total number of customers"""
+        customers = self.crm.get_all()
+        return {
+            'total_customers': len(customers),
+            'customers': customers
+        }
+    
+    def get_interactions_per_period(self, period):
+        """Get interactions filtered by period (daily, weekly, monthly)"""
+        interactions = self.im.interactions
+        now = datetime.now()
+        
+        filtered_interactions = []
+        
+        for interaction in interactions:
+            # Parse the date_time string
+            try:
+                # Assuming date_time format is "YYYY-MM-DD HH:MM"
+                interaction_date = datetime.strptime(interaction.get_datetime()[:10], "%Y-%m-%d")
+            except:
+                continue
+            
+            if period == "daily":
+                # Today
+                if interaction_date.date() == now.date():
+                    filtered_interactions.append(interaction)
+            elif period == "weekly":
+                # Last 7 days
+                week_ago = now - timedelta(days=7)
+                if interaction_date >= week_ago:
+                    filtered_interactions.append(interaction)
+            elif period == "monthly":
+                # This month
+                if interaction_date.year == now.year and interaction_date.month == now.month:
+                    filtered_interactions.append(interaction)
+        
+        return {
+            'period': period,
+            'count': len(filtered_interactions),
+            'interactions': filtered_interactions
+        }
+    
+    def get_most_common_interaction_type(self):
+        """Get most common interaction type (Call/Email/Chat/Visit)"""
+        interactions = self.im.interactions
+        
+        if not interactions:
+            return {
+                'has_data': False,
+                'message': 'No interaction records found'
+            }
+        
+        # Count each type
+        type_counts = Counter()
+        for interaction in interactions:
+            interaction_type = interaction.get_type()
+            type_counts[interaction_type] += 1
+        
+        # Find most common
+        if type_counts:
+            most_common = type_counts.most_common(1)[0]
+            return {
+                'has_data': True,
+                'type_counts': dict(type_counts),
+                'most_common_type': most_common[0],
+                'most_common_count': most_common[1],
+                'total_interactions': len(interactions)
+            }
+        
+        return {
+            'has_data': False,
+            'message': 'No interaction records found'
+        }
+    
+    def get_support_ticket_report(self):
+        """Get summary of support tickets"""
+        tickets = self.tm.get_all_tickets()
+        
+        if not tickets:
+            return {
+                'has_data': False,
+                'message': 'No tickets found'
+            }
+        
+        # Count by status
+        status_counts = Counter()
+        priority_counts = Counter()
+        
+        for ticket in tickets:
+            status_counts[ticket.get_status()] += 1
+            priority_counts[ticket.get_priority()] += 1
+        
+        return {
+            'has_data': True,
+            'total_tickets': len(tickets),
+            'status_counts': dict(status_counts),
+            'priority_counts': dict(priority_counts),
+            'tickets': tickets
+        }
 
 
 
@@ -409,6 +523,8 @@ crm = CRM()
 im = InteractionManager()
 tm = TicketManager()
 um = UserManager()
+report_manager = ReportManager(crm, im, tm)
+
 
 # SAMPLE DATA FOR TESTING
 sample_customer = Customer("CUST001", "Juan Dela Cruz", "juan@email.com", "1234")
@@ -806,6 +922,64 @@ def delete_user(user_id):
         return redirect(url_for("view_users"))
     
     return render_template("delete_user.html", user=user)
+
+
+# ============================================================
+# MODULE 5 ROUTES
+# ============================================================
+
+@app.route("/reports")
+def reports():
+    """Main reports menu"""
+    if "user" not in session or session.get("type") == "customer":
+        return redirect(url_for("login"))
+    return render_template("reports.html")
+
+
+@app.route("/report/customers")
+def report_customers():
+    """Customer Report - Display total number of customers"""
+    if "user" not in session or session.get("type") == "customer":
+        return redirect(url_for("login"))
+    
+    report = report_manager.get_customer_report()
+    return render_template("report_customers.html", report=report)
+
+
+@app.route("/report/interactions", methods=["GET", "POST"])
+def report_interactions():
+    """Interaction Report - Filter by period"""
+    if "user" not in session or session.get("type") == "customer":
+        return redirect(url_for("login"))
+    
+    report = None
+    period = None
+    
+    if request.method == "POST":
+        period = request.form.get("period")
+        report = report_manager.get_interactions_per_period(period)
+    
+    return render_template("report_interactions.html", report=report, period=period)
+
+
+@app.route("/report/interaction-types")
+def report_interaction_types():
+    """Most Common Interaction Type Report"""
+    if "user" not in session or session.get("type") == "customer":
+        return redirect(url_for("login"))
+    
+    report = report_manager.get_most_common_interaction_type()
+    return render_template("report_interaction_types.html", report=report)
+
+
+@app.route("/report/tickets")
+def report_tickets():
+    """Support Ticket Summary Report"""
+    if "user" not in session or session.get("type") == "customer":
+        return redirect(url_for("login"))
+    
+    report = report_manager.get_support_ticket_report()
+    return render_template("report_tickets.html", report=report)
 
 # ============================================================
 # RUN THE APP

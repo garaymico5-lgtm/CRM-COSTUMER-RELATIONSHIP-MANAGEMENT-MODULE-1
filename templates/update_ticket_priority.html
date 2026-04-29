@@ -2,18 +2,318 @@
 <html>
 <head>
     <title>Update Priority</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-module {
+            margin-bottom: 20px;
+        }
+        
+        .menu-module h3 {
+            padding: 10px 25px;
+            font-size: 12px;
+            color: #8ba0b5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .menu-module ul {
+            list-style: none;
+        }
+        
+        .menu-module li a {
+            display: block;
+            padding: 10px 25px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .menu-module li a:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 35px;
+        }
+        
+        .logout-btn {
+            margin-top: 30px;
+            padding: 15px 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logout-btn a {
+            color: #e74c3c;
+            text-decoration: none;
+            display: block;
+            font-weight: bold;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            width: calc(100% - 280px);
+        }
+        
+        .page-title {
+            margin-bottom: 25px;
+        }
+        
+        .page-title h1 {
+            color: #2c3e50;
+            font-size: 28px;
+        }
+        
+        .page-title p {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        /* FORM CARD */
+        .form-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+            padding: 15px 20px;
+        }
+        
+        .card-header h2 {
+            font-size: 18px;
+        }
+        
+        .card-content {
+            padding: 25px;
+        }
+        
+        .ticket-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .ticket-info p {
+            margin: 5px 0;
+        }
+        
+        .ticket-info strong {
+            color: #2c3e50;
+            width: 130px;
+            display: inline-block;
+        }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .priority-low { background: #d4edda; color: #155724; }
+        .priority-medium { background: #fff3cd; color: #856404; }
+        .priority-high { background: #ffe2d6; color: #e67e22; }
+        .priority-critical { background: #f8d7da; color: #dc3545; }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-group select:focus {
+            outline: none;
+            border-color: #ff9800;
+            box-shadow: 0 0 5px rgba(255,152,0,0.3);
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-cancel {
+            display: inline-block;
+            background: #95a5a6;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-left: 10px;
+            transition: background 0.3s;
+        }
+        
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+    </style>
 </head>
 <body>
-    <h1>Update Priority</h1>
-    <p>Ticket: {{ ticket.get_id() }}</p>
-    <p>Current Priority: {{ ticket.get_priority() }}</p>
-    <form method="POST">
-        New Priority:
-        <select name="priority">
-            <option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
-        </select><br><br>
-        <input type="submit" value="Update">
-        <a href="/view_tickets">Cancel</a>
-    </form>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>CRM System</h2>
+            <p>Admin Panel</p>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-module">
+                <h3>Module 1</h3>
+                <ul>
+                    <li><a href="/add">➕ Add Customer</a></li>
+                    <li><a href="/view">📋 View Customers</a></li>
+                    <li><a href="/search">🔍 Search Customer</a></li>
+                </ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 2</h3>
+                <ul>
+                    <li><a href="/add_interaction">💬 Add Interaction</a></li>
+                    <li><a href="/view_interactions">📖 View Interactions</a></li>
+                </ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 3</h3>
+                <ul>
+                    <li><a href="/create_ticket">🎫 Create Ticket</a></li>
+                    <li><a href="/view_tickets">📌 View Tickets</a></li>
+                </ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 4</h3>
+                <ul>
+                    <li><a href="/add_user">👤 Add User</a></li>
+                    <li><a href="/view_users">👥 Manage Users</a></li>
+                </ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 6</h3>
+                <ul>
+                    <li><a href="/reports">📊 Reports</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="logout-btn">
+            <a href="/logout">🚪 Logout</a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-title">
+            <h1>Update Ticket Priority</h1>
+            <p>Change the priority level of a support ticket</p>
+        </div>
+        
+        <div class="form-card">
+            <div class="card-header">
+                <h2>⚡ Priority Settings</h2>
+            </div>
+            <div class="card-content">
+                <div class="ticket-info">
+                    <p><strong>Ticket ID:</strong> {{ ticket.get_id() }}</p>
+                    <p>
+                        <strong>Current Priority:</strong> 
+                        <span class="priority-badge 
+                            {% if ticket.get_priority() == 'Low' %}priority-low
+                            {% elif ticket.get_priority() == 'Medium' %}priority-medium
+                            {% elif ticket.get_priority() == 'High' %}priority-high
+                            {% else %}priority-critical{% endif %}">
+                            {% if ticket.get_priority() == 'Low' %}🟢 Low
+                            {% elif ticket.get_priority() == 'Medium' %}🟡 Medium
+                            {% elif ticket.get_priority() == 'High' %}🟠 High
+                            {% else %}🔴 Critical{% endif %}
+                        </span>
+                    </p>
+                </div>
+                
+                <form method="POST">
+                    <div class="form-group">
+                        <label>New Priority:</label>
+                        <select name="priority" required>
+                            <option value="Low">🟢 Low - Not urgent</option>
+                            <option value="Medium">🟡 Medium - Normal priority</option>
+                            <option value="High">🟠 High - Important</option>
+                            <option value="Critical">🔴 Critical - Emergency</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">Update Priority</button>
+                    <a href="/view_tickets" class="btn-cancel">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

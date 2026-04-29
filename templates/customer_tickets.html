@@ -2,37 +2,296 @@
 <html>
 <head>
     <title>My Tickets</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-module {
+            margin-bottom: 20px;
+        }
+        
+        .menu-module h3 {
+            padding: 10px 25px;
+            font-size: 12px;
+            color: #8db5e0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .menu-module ul {
+            list-style: none;
+        }
+        
+        .menu-module li a {
+            display: block;
+            padding: 10px 25px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .menu-module li a:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 35px;
+        }
+        
+        .logout-btn {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 15px 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logout-btn a {
+            color: #ff6b6b;
+            text-decoration: none;
+            display: block;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            width: calc(100% - 280px);
+        }
+        
+        .page-title {
+            margin-bottom: 25px;
+        }
+        
+        .page-title h1 {
+            color: #1e3c72;
+            font-size: 28px;
+        }
+        
+        .page-title p {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        /* BUTTONS */
+        .btn-create {
+            display: inline-block;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+        
+        .btn-create:hover {
+            transform: translateY(-2px);
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #95a5a6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #7f8c8d;
+        }
+        
+        /* TABLE */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #1e3c72;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .empty-row td {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .empty-row a {
+            color: #1e3c72;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .empty-row a:hover {
+            text-decoration: underline;
+        }
+        
+        /* STATUS & PRIORITY BADGES */
+        .priority-low { color: #28a745; font-weight: bold; }
+        .priority-medium { color: #ffc107; font-weight: bold; }
+        .priority-high { color: #fd7e14; font-weight: bold; }
+        .priority-critical { color: #dc3545; font-weight: bold; }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-open { background: #d4edda; color: #155724; }
+        .status-progress { background: #fff3cd; color: #856404; }
+        .status-resolved { background: #cce5ff; color: #004085; }
+        .status-closed { background: #e2e3e5; color: #383d41; }
+    </style>
 </head>
 <body>
-    <h1>My Support Tickets</h1>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Customer Portal</h2>
+            <p>Welcome, {{ session.get('name') }}</p>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-module">
+                <h3>My Support Tickets</h3>
+                <ul>
+                    <li><a href="/customer_tickets">📋 View My Tickets</a></li>
+                    <li><a href="/customer_create_ticket">➕ Create New Ticket</a></li>
+                </ul>
+            </div>
+            <div class="menu-module">
+                <h3>My Interactions</h3>
+                <ul>
+                    <li><a href="/customer_interactions">📖 View My Interactions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="logout-btn">
+            <a href="/logout">🚪 Logout</a>
+        </div>
+    </div>
     
-    <a href="/customer_create_ticket">Create New Ticket</a>
-    <br><br>
-    
-    {% if tickets %}
-        <table border="1">
-            <tr>
-                <th>Ticket ID</th>
-                <th>Description</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Created Date</th>
-            </tr>
-            {% for ticket in tickets %}
-            <tr>
-                <td>{{ ticket.get_id() }}</td>
-                <td>{{ ticket.get_description() }}</td>
-                <td>{{ ticket.get_priority() }}</td>
-                <td>{{ ticket.get_status() }}</td>
-                <td>{{ ticket.get_created_date() }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>No tickets found. <a href="/customer_create_ticket">Create a ticket</a></p>
-    {% endif %}
-    
-    <br>
-    <a href="/customer_home">Back to Menu</a>
+    <div class="main-content">
+        <div class="page-title">
+            <h1>My Support Tickets</h1>
+            <p>Track and manage your support requests</p>
+        </div>
+        
+        <a href="/customer_create_ticket" class="btn-create">➕ Create New Ticket</a>
+        
+        <div class="table-container">
+            {% if tickets %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Description</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Created Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td><strong>{{ ticket.get_id() }}</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>
+                            <td>{{ ticket.get_description()[:100] }}{% if ticket.get_description()|length > 100 %}...{% endif %}</td>
+                            <td class="priority-{% if ticket.get_priority() == 'Low' %}low{% elif ticket.get_priority() == 'Medium' %}medium{% elif ticket.get_priority() == 'High' %}high{% else %}critical{% endif %}">
+                                {% if ticket.get_priority() == 'Low' %}🟢 Low
+                                {% elif ticket.get_priority() == 'Medium' %}🟡 Medium
+                                {% elif ticket.get_priority() == 'High' %}🟠 High
+                                {% else %}🔴 Critical{% endif %}
+                            </td>
+                            <td>
+                                <span class="status-badge 
+                                    {% if ticket.get_status() == 'Open' %}status-open
+                                    {% elif ticket.get_status() == 'In Progress' %}status-progress
+                                    {% elif ticket.get_status() == 'Resolved' %}status-resolved
+                                    {% else %}status-closed{% endif %}">
+                                    {{ ticket.get_status() }}
+                                </span>
+                            </td>
+                            <td>{{ ticket.get_created_date() }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-row" style="text-align: center; padding: 40px;">
+                    <p>📭 No tickets found.</p>
+                    <p><a href="/customer_create_ticket">Create a ticket</a> to get support.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <a href="/customer_home" class="back-btn">← Back to Menu</a>
+    </div>
 </body>
 </html>

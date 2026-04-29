@@ -2,42 +2,316 @@
 <html>
 <head>
     <title>View Users</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-module {
+            margin-bottom: 20px;
+        }
+        
+        .menu-module h3 {
+            padding: 10px 25px;
+            font-size: 12px;
+            color: #8ba0b5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .menu-module ul {
+            list-style: none;
+        }
+        
+        .menu-module li a {
+            display: block;
+            padding: 10px 25px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .menu-module li a:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 35px;
+        }
+        
+        .logout-btn {
+            margin-top: 30px;
+            padding: 15px 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logout-btn a {
+            color: #e74c3c;
+            text-decoration: none;
+            display: block;
+            font-weight: bold;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            width: calc(100% - 280px);
+        }
+        
+        .page-title {
+            margin-bottom: 25px;
+        }
+        
+        .page-title h1 {
+            color: #2c3e50;
+            font-size: 28px;
+        }
+        
+        .page-title p {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        /* BUTTONS */
+        .btn-add {
+            display: inline-block;
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+        
+        .btn-add:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* TABLE CARD */
+        .table-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .admin-row {
+            background: #fff8e1;
+        }
+        
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .role-admin { background: #e74c3c; color: white; }
+        .role-staff { background: #3498db; color: white; }
+        .role-support { background: #2ecc71; color: white; }
+        
+        .default-badge {
+            background: #95a5a6;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            margin-left: 8px;
+        }
+        
+        .action-links a {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 0 3px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        
+        .edit-link {
+            background: #3498db;
+            color: white;
+        }
+        
+        .role-link {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .delete-link {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #95a5a6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #7f8c8d;
+        }
+    </style>
 </head>
 <body>
-    <h1>System Users</h1>
-    <a href="/add_user">Add New User</a>
-    <br><br>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>CRM System</h2>
+            <p>Admin Panel</p>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-module">
+                <h3>Module 1</h3>
+                <ul><li><a href="/add">➕ Add Customer</a></li><li><a href="/view">📋 View Customers</a></li><li><a href="/search">🔍 Search Customer</a></li></ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 2</h3>
+                <ul><li><a href="/add_interaction">💬 Add Interaction</a></li><li><a href="/view_interactions">📖 View Interactions</a></li></ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 3</h3>
+                <ul><li><a href="/create_ticket">🎫 Create Ticket</a></li><li><a href="/view_tickets">📌 View Tickets</a></li></ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 4</h3>
+                <ul><li><a href="/add_user">👤 Add User</a></li><li><a href="/view_users">👥 Manage Users</a></li></ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 6</h3>
+                <ul><li><a href="/reports">📊 Reports</a></li></ul>
+            </div>
+        </div>
+        <div class="logout-btn"><a href="/logout">🚪 Logout</a></div>
+    </div>
     
-    <table border="1">
-        <thead>
-            <tr>
-                <th>User ID</th>
-                <th>Username</th>
-                <th>Role</th>
-                <th>Created Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <tr>{{ user.get_user_id() }}</td>
-                <td>{{ user.get_username() }} {% if user.get_username() == 'admin' %}(Default){% endif %}</td>
-                <td>{{ user.get_role() }}</td>
-                <td>{{ user.get_created_date() }}</td>
-                <td>
-                    <a href="/edit_user/{{ user.get_user_id() }}">Edit</a> |
-                    <a href="/assign_role/{{ user.get_user_id() }}">Assign Role</a> |
-                    {% if user.get_username() != 'admin' %}
-                        <a href="/delete_user/{{ user.get_user_id() }}" onclick="return confirm('Delete this user?')">Delete</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    
-    <br>
-    <a href="/">Back to Menu</a>
+    <div class="main-content">
+        <div class="page-title">
+            <h1>System Users</h1>
+            <p>Manage user accounts and permissions</p>
+        </div>
+        
+        <a href="/add_user" class="btn-add">➕ Add New User</a>
+        
+        <div class="table-card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Created Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr {% if user.get_username() == 'admin' %}class="admin-row"{% endif %}>
+                            <td><strong>{{ user.get_user_id() }}</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>
+                            <td>
+                                {{ user.get_username() }}
+                                {% if user.get_username() == 'admin' %}
+                                    <span class="default-badge">Default</span>
+                                {% endif %}
+                            </br>
+                            <td>
+                                <span class="role-badge 
+                                    {% if user.get_role() == 'Admin' %}role-admin
+                                    {% elif user.get_role() == 'Staff' %}role-staff
+                                    {% else %}role-support{% endif %}">
+                                    {{ user.get_role() }}
+                                </span>
+                            </br>
+                            <td>{{ user.get_created_date() }}</br>
+                            <td class="action-links">
+                                <a href="/edit_user/{{ user.get_user_id() }}" class="edit-link">✏️ Edit</a>
+                                <a href="/assign_role/{{ user.get_user_id() }}" class="role-link">🎭 Assign Role</a>
+                                {% if user.get_username() != 'admin' %}
+                                    <a href="/delete_user/{{ user.get_user_id() }}" class="delete-link" onclick="return confirm('Delete this user?')">🗑️ Delete</a>
+                                {% endif %}
+                            </br>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <a href="/" class="back-btn">← Back to Menu</a>
+    </div>
 </body>
 </html>

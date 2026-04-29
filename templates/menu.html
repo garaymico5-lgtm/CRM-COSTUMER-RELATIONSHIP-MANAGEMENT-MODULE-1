@@ -1,38 +1,221 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Menu</title>
+    <title>Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-module {
+            margin-bottom: 20px;
+        }
+        
+        .menu-module h3 {
+            padding: 10px 25px;
+            font-size: 14px;
+            color: #8ba0b5;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .menu-module ul {
+            list-style: none;
+        }
+        
+        .menu-module li a {
+            display: block;
+            padding: 10px 25px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .menu-module li a:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 35px;
+        }
+        
+        .logout-btn {
+            margin-top: 30px;
+            padding: 15px 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logout-btn a {
+            color: #e74c3c;
+            text-decoration: none;
+            display: block;
+            font-weight: bold;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            width: calc(100% - 280px);
+        }
+        
+        .welcome-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .welcome-card h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-card p {
+            color: #7f8c8d;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+    </style>
 </head>
 <body>
-    <h1>CRM System - Admin Menu</h1>
-    <p>Welcome, {{ session.get('user') }}!</p>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>CRM System</h2>
+            <p>Welcome, {{ session.get('user') }}</p>
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-module">
+                <h3>Module 1</h3>
+                <ul>
+                    <li><a href="/add">➕ Add Customer</a></li>
+                    <li><a href="/view">📋 View Customers</a></li>
+                    <li><a href="/search">🔍 Search Customer</a></li>
+                </ul>
+            </div>
+            
+            <div class="menu-module">
+                <h3>Module 2</h3>
+                <ul>
+                    <li><a href="/add_interaction">💬 Add Interaction</a></li>
+                    <li><a href="/view_interactions">📖 View Interactions</a></li>
+                </ul>
+            </div>
+            
+            <div class="menu-module">
+                <h3>Module 3</h3>
+                <ul>
+                    <li><a href="/create_ticket">🎫 Create Ticket</a></li>
+                    <li><a href="/view_tickets">📌 View Tickets</a></li>
+                </ul>
+            </div>
+            
+            <div class="menu-module">
+                <h3>Module 4</h3>
+                <ul>
+                    <li><a href="/add_user">👤 Add User</a></li>
+                    <li><a href="/view_users">👥 Manage Users</a></li>
+                </ul>
+            </div>
+            
+            <div class="menu-module">
+                <h3>Module 6</h3>
+                <ul>
+                    <li><a href="/reports">📊 Reports</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="logout-btn">
+            <a href="/logout">🚪 Logout</a>
+        </div>
+    </div>
     
-    <h2>Module 1: Customer Management</h2>
-    <ul>
-        <li><a href="/add">Add Customer</a></li>
-        <li><a href="/view">View All Customers</a></li>
-        <li><a href="/search">Search Customer</a></li>
-    </ul>
-    
-    <h2>Module 2: Interaction Management</h2>
-    <ul>
-        <li><a href="/add_interaction">Add Interaction</a></li>
-        <li><a href="/view_interactions">View Interactions</a></li>
-    </ul>
-    
-    <h2>Module 3: Support Ticket System</h2>
-    <ul>
-        <li><a href="/create_ticket">Create Ticket</a></li>
-        <li><a href="/view_tickets">View Tickets</a></li>
-    </ul>
-    
-    <h2>Module 4: System Management</h2>
-    <ul>
-        <li><a href="/add_user">Add System User</a></li>
-        <li><a href="/view_users">View/Manage Users</a></li>
-    </ul>
-    
-    <br>
-    <a href="/logout">Logout</a>
+    <div class="main-content">
+        <div class="welcome-card">
+            <h1>Dashboard</h1>
+            <p>Welcome back, {{ session.get('user') }}! Here's your CRM overview.</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Customers</h3>
+                <div class="number">{{ customers_count|default('0') }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Tickets</h3>
+                <div class="number">{{ active_tickets|default('0') }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Interactions</h3>
+                <div class="number">{{ interactions_count|default('0') }}</div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

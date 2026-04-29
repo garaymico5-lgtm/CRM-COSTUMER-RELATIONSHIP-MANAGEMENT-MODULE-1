@@ -2,37 +2,384 @@
 <html>
 <head>
     <title>View Tickets</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-module {
+            margin-bottom: 20px;
+        }
+        
+        .menu-module h3 {
+            padding: 10px 25px;
+            font-size: 12px;
+            color: #8ba0b5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .menu-module ul {
+            list-style: none;
+        }
+        
+        .menu-module li a {
+            display: block;
+            padding: 10px 25px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .menu-module li a:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 35px;
+        }
+        
+        .logout-btn {
+            margin-top: 30px;
+            padding: 15px 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logout-btn a {
+            color: #e74c3c;
+            text-decoration: none;
+            display: block;
+            font-weight: bold;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            width: calc(100% - 280px);
+        }
+        
+        .page-title {
+            margin-bottom: 25px;
+        }
+        
+        .page-title h1 {
+            color: #2c3e50;
+            font-size: 28px;
+        }
+        
+        .page-title p {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        /* FILTER CARD */
+        .filter-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        
+        .filter-form {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .btn-view {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* TABLE CARD */
+        .table-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            padding: 15px 20px;
+        }
+        
+        .table-header h2 {
+            font-size: 18px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f8f9fa;
+            color: #2c3e50;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .priority-low { color: #28a745; font-weight: bold; }
+        .priority-medium { color: #ffc107; font-weight: bold; }
+        .priority-high { color: #fd7e14; font-weight: bold; }
+        .priority-critical { color: #dc3545; font-weight: bold; }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-open { background: #d4edda; color: #155724; }
+        .status-progress { background: #fff3cd; color: #856404; }
+        .status-resolved { background: #cce5ff; color: #004085; }
+        .status-closed { background: #e2e3e5; color: #383d41; }
+        
+        .action-links a {
+            text-decoration: none;
+            padding: 5px 8px;
+            border-radius: 5px;
+            margin: 0 2px;
+            font-size: 11px;
+            display: inline-block;
+        }
+        
+        .priority-link {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .status-link {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .delete-link {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            background: #fff3cd;
+            color: #856404;
+            text-align: center;
+        }
+        
+        .empty-row td {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #95a5a6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
-    <h1>View Tickets</h1>
-    <form method="POST">
-        <select name="customer_id">
-            <option value="all">All Customers</option>
-            {% for c in customers %}<option value="{{ c.get_id() }}">{{ c.get_id() }} - {{ c.get_name() }}</option>{% endfor %}
-        </select>
-        <input type="submit" value="View">
-    </form>
-    {% if tickets %}
-        <table border="1">
-            <tr><th>ID</th><th>Customer</th><th>Description</th><th>Priority</th><th>Status</th><th>Created</th><th>Actions</th></tr>
-            {% for t in tickets %}
-            <tr>
-                <td>{{ t.get_id() }}</td>
-                <td>{{ t.get_customer_id() }}</td>
-                <td>{{ t.get_description()[:50] }}</td>
-                <td>{{ t.get_priority() }}</td>
-                <td>{{ t.get_status() }}</td>
-                <td>{{ t.get_created_date() }}</td>
-                <td>
-                    <a href="/update_ticket_priority/{{ t.get_id() }}">Priority</a>
-                    <a href="/update_ticket_status/{{ t.get_id() }}">Status</a>
-                    <a href="/delete_ticket/{{ t.get_id() }}" onclick="return confirm('Delete?')">Delete</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-    {% endif %}
-    {% if message %}<p>{{ message }}</p>{% endif %}
-    <br><a href="/">Back</a>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>CRM System</h2>
+            <p>Admin Panel</p>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-module">
+                <h3>Module 1</h3>
+                <ul><li><a href="/add">➕ Add Customer</a></li><li><a href="/view">📋 View Customers</a></li><li><a href="/search">🔍 Search Customer</a></li></ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 2</h3>
+                <ul><li><a href="/add_interaction">💬 Add Interaction</a></li><li><a href="/view_interactions">📖 View Interactions</a></li></ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 3</h3>
+                <ul><li><a href="/create_ticket">🎫 Create Ticket</a></li><li><a href="/view_tickets">📌 View Tickets</a></li></ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 4</h3>
+                <ul><li><a href="/add_user">👤 Add User</a></li><li><a href="/view_users">👥 Manage Users</a></li></ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 6</h3>
+                <ul><li><a href="/reports">📊 Reports</a></li></ul>
+            </div>
+        </div>
+        <div class="logout-btn"><a href="/logout">🚪 Logout</a></div>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-title">
+            <h1>View Support Tickets</h1>
+            <p>Manage and track all support tickets</p>
+        </div>
+        
+        <div class="filter-card">
+            <form method="POST" class="filter-form">
+                <div class="form-group">
+                    <label>Filter by Customer:</label>
+                    <select name="customer_id">
+                        <option value="all">📋 All Customers</option>
+                        {% for c in customers %}
+                            <option value="{{ c.get_id() }}">{{ c.get_id() }} - {{ c.get_name() }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn-view">🔍 View Tickets</button>
+            </form>
+        </div>
+        
+        {% if tickets %}
+            <div class="table-card">
+                <div class="table-header">
+                    <h2>🎫 Ticket List</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Customer</th>
+                                <th>Description</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in tickets %}
+                            <tr>
+                                <td><strong>{{ t.get_id() }}</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>
+                                <td>{{ t.get_customer_id() }}</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>
+                                <td>{{ t.get_description()[:60] }}{% if t.get_description()|length > 60 %}...{% endif %}</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>
+                                <td class="priority-{% if t.get_priority() == 'Low' %}low{% elif t.get_priority() == 'Medium' %}medium{% elif t.get_priority() == 'High' %}high{% else %}critical{% endif %}">
+                                    {% if t.get_priority() == 'Low' %}🟢 Low
+                                    {% elif t.get_priority() == 'Medium' %}🟡 Medium
+                                    {% elif t.get_priority() == 'High' %}🟠 High
+                                    {% else %}🔴 Critical{% endif %}
+                                </br>
+                                <td>
+                                    <span class="status-badge 
+                                        {% if t.get_status() == 'Open' %}status-open
+                                        {% elif t.get_status() == 'In Progress' %}status-progress
+                                        {% elif t.get_status() == 'Resolved' %}status-resolved
+                                        {% else %}status-closed{% endif %}">
+                                        {{ t.get_status() }}
+                                    </span>
+                                </br>
+                                <td>{{ t.get_created_date() }}</br>
+                                <td class="action-links">
+                                    <a href="/update_ticket_priority/{{ t.get_id() }}" class="priority-link">⚡ Priority</a>
+                                    <a href="/update_ticket_status/{{ t.get_id() }}" class="status-link">📌 Status</a>
+                                    <a href="/delete_ticket/{{ t.get_id() }}" class="delete-link" onclick="return confirm('Delete this ticket?')">🗑️ Delete</a>
+                                </br>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+        
+        {% if message %}
+            <div class="message">{{ message }}</div>
+        {% endif %}
+        
+        <a href="/" class="back-btn">← Back to Menu</a>
+    </div>
 </body>
 </html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add User</title>
+    <title>Most Common Interaction Type</title>
     <style>
         * {
             margin: 0;
@@ -111,82 +111,142 @@
             margin-top: 5px;
         }
         
-        /* FORM CONTAINER */
-        .form-container {
+        /* RESULT BOX */
+        .result-box {
             background: white;
-            padding: 30px;
             border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 500px;
         }
         
-        .form-group {
+        .summary-header {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
             margin-bottom: 20px;
         }
         
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
+        .summary-header h2 {
+            color: #2c3e50;
         }
         
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+        .total-interactions {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .total-interactions p {
             font-size: 14px;
-            transition: all 0.3s;
+            color: #666;
         }
         
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52,152,219,0.3);
+        .total-interactions strong {
+            font-size: 28px;
+            color: #667eea;
         }
         
-        .message {
-            padding: 12px;
-            border-radius: 8px;
+        /* TABLE */
+        .table-container {
             margin-bottom: 20px;
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
         }
         
-        .btn-submit {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .table-container h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #2c3e50;
             color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-size: 16px;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .count-cell {
+            text-align: center;
             font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s;
         }
         
-        .btn-submit:hover {
-            transform: translateY(-2px);
+        /* WINNER BOX */
+        .winner-box {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 20px;
         }
         
-        .btn-cancel {
+        .winner-box h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .winner {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .winner-count {
+            font-size: 16px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+        
+        .message-box {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: #856404;
+        }
+        
+        .back-btn {
             display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
             background: #95a5a6;
             color: white;
             text-decoration: none;
-            padding: 12px 25px;
             border-radius: 8px;
-            margin-left: 10px;
             transition: background 0.3s;
         }
         
-        .btn-cancel:hover {
+        .back-btn:hover {
             background: #7f8c8d;
         }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .type-call { background: #d4edda; color: #155724; }
+        .type-email { background: #cce5ff; color: #004085; }
+        .type-chat { background: #fff3cd; color: #856404; }
+        .type-visit { background: #e2e3e5; color: #383d41; }
     </style>
 </head>
 <body>
@@ -239,40 +299,62 @@
     
     <div class="main-content">
         <div class="page-title">
-            <h1>Add System User</h1>
-            <p>Create a new admin, staff, or support account</p>
+            <h1>Most Common Interaction Type</h1>
+            <p>Analysis of customer interaction patterns</p>
         </div>
         
-        <div class="form-container">
-            {% if message %}
-                <div class="message">{{ message }}</div>
-            {% endif %}
-            
-            <form method="POST">
-                <div class="form-group">
-                    <label>Username:</label>
-                    <input type="text" name="username" placeholder="Enter username" required>
+        {% if report.has_data %}
+            <div class="result-box">
+                <div class="summary-header">
+                    <h2>📊 Summary Report</h2>
                 </div>
                 
-                <div class="form-group">
-                    <label>Password:</label>
-                    <input type="password" name="password" placeholder="Enter password" required>
+                <div class="total-interactions">
+                    <p>Total Interactions Recorded</p>
+                    <strong>{{ report.total_interactions }}</strong>
                 </div>
                 
-                <div class="form-group">
-                    <label>Role:</label>
-                    <select name="role" required>
-                        <option value="">-- Select Role --</option>
-                        {% for role in roles %}
-                            <option value="{{ role }}">{{ role }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="table-container">
+                    <h3>Count by Interaction Type:</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Interaction Type</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for type, count in report.type_counts.items() %}
+                            <tr>
+                                <td>
+                                    <span class="type-badge 
+                                        {% if type == 'Call' %}type-call
+                                        {% elif type == 'Email' %}type-email
+                                        {% elif type == 'Chat' %}type-chat
+                                        {% else %}type-visit{% endif %}">
+                                        {{ type }}
+                                    </span>
+                                </br>
+                                <td class="count-cell">{{ count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
                 
-                <button type="submit" class="btn-submit">Add User</button>
-                <a href="/" class="btn-cancel">Cancel</a>
-            </form>
-        </div>
+                <div class="winner-box">
+                    <h3>🏆 MOST COMMON INTERACTION TYPE</h3>
+                    <div class="winner">{{ report.most_common_type }}</div>
+                    <div class="winner-count">{{ report.most_common_count }} times recorded</div>
+                </div>
+            </div>
+        {% else %}
+            <div class="message-box">
+                <p>📭 {{ report.message }}</p>
+            </div>
+        {% endif %}
+        
+        <a href="/reports" class="back-btn">← Back to Reports</a>
     </div>
 </body>
 </html>

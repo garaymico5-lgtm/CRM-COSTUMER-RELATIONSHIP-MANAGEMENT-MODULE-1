@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Search Customer</title>
+    <title>Interaction Report</title>
     <style>
         * {
             margin: 0;
@@ -111,13 +111,18 @@
             margin-top: 5px;
         }
         
-        /* SEARCH CARD */
-        .search-card {
+        /* FILTER CARD */
+        .filter-card {
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 15px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 30px;
+        }
+        
+        .filter-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
         }
         
         .form-group {
@@ -127,38 +132,31 @@
             flex-wrap: wrap;
         }
         
-        .input-field {
-            flex: 1;
-            min-width: 250px;
-        }
-        
-        .input-field label {
-            display: block;
-            margin-bottom: 8px;
+        .form-group label {
             font-weight: 600;
             color: #333;
+            margin-bottom: 5px;
+            display: block;
         }
         
-        .input-field input {
-            width: 100%;
-            padding: 12px;
+        .form-group select {
+            padding: 10px 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 14px;
-            transition: all 0.3s;
+            min-width: 200px;
         }
         
-        .input-field input:focus {
+        .form-group select:focus {
             outline: none;
             border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52,152,219,0.3);
         }
         
-        .btn-search {
+        .btn-generate {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 10px 20px;
             border-radius: 8px;
             font-size: 14px;
             font-weight: bold;
@@ -166,7 +164,7 @@
             transition: transform 0.2s;
         }
         
-        .btn-search:hover {
+        .btn-generate:hover {
             transform: translateY(-2px);
         }
         
@@ -176,62 +174,96 @@
             border-radius: 15px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             overflow: hidden;
+            margin-bottom: 20px;
         }
         
         .result-header {
-            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px 20px;
+            padding: 20px;
+            text-align: center;
         }
         
         .result-header h2 {
             font-size: 18px;
+            margin-bottom: 5px;
         }
         
-        .result-content {
+        .result-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .stat-box {
+            background: #f8f9fa;
             padding: 20px;
-        }
-        
-        .info-row {
-            display: flex;
-            padding: 12px 0;
+            text-align: center;
             border-bottom: 1px solid #eee;
         }
         
-        .info-label {
-            width: 120px;
-            font-weight: 600;
+        .stat-box p {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .table-container {
+            padding: 20px;
+        }
+        
+        .table-container h3 {
+            margin-bottom: 15px;
             color: #2c3e50;
         }
         
-        .info-value {
-            flex: 1;
-            color: #333;
-            font-family: monospace;
-            font-size: 14px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
         
-        .message {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
         }
         
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
         }
         
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        tr:hover {
+            background: #f8f9fa;
         }
+        
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .type-call { background: #d4edda; color: #155724; }
+        .type-email { background: #cce5ff; color: #004085; }
+        .type-chat { background: #fff3cd; color: #856404; }
+        .type-visit { background: #e2e3e5; color: #383d41; }
         
         .back-btn {
             display: inline-block;
-            margin-top: 20px;
+            margin-top: 10px;
             padding: 10px 20px;
             background: #95a5a6;
             color: white;
@@ -295,49 +327,84 @@
     
     <div class="main-content">
         <div class="page-title">
-            <h1>Search Customer</h1>
-            <p>Find a customer by their ID</p>
+            <h1>Interaction Report</h1>
+            <p>Generate interaction reports by time period</p>
         </div>
         
-        <div class="search-card">
+        <div class="filter-card">
+            <h3>📅 Select Period</h3>
             <form method="POST">
                 <div class="form-group">
-                    <div class="input-field">
-                        <label>Customer ID:</label>
-                        <input type="text" name="id" placeholder="Enter customer ID" required>
+                    <div>
+                        <label>Period:</label>
+                        <select name="period" required>
+                            <option value="daily">📆 Daily (Today)</option>
+                            <option value="weekly">📊 Weekly (Last 7 days)</option>
+                            <option value="monthly">📈 Monthly (This month)</option>
+                        </select>
                     </div>
-                    <button type="submit" class="btn-search">🔍 Search</button>
+                    <div>
+                        <button type="submit" class="btn-generate">Generate Report</button>
+                    </div>
                 </div>
             </form>
         </div>
         
-        {% if customer %}
+        {% if report %}
             <div class="result-card">
                 <div class="result-header">
-                    <h2>✅ Customer Found</h2>
+                    <h2>Report for: {{ period|capitalize }}</h2>
+                    <p>Interaction period summary</p>
                 </div>
-                <div class="result-content">
-                    <div class="info-row">
-                        <div class="info-label">Customer ID:</div>
-                        <div class="info-value"><strong>{{ customer.get_id() }}</strong></div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-label">Name:</div>
-                        <div class="info-value">{{ customer.get_name() }}</div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-label">Email:</div>
-                        <div class="info-value">{{ customer.get_contact() }}</div>
-                    </div>
+                
+                <div class="stat-box">
+                    <p>Total Interactions</p>
+                    <div class="stat-number">{{ report.count }}</div>
                 </div>
+                
+                {% if report.interactions %}
+                    <div class="table-container">
+                        <h3>📋 Interaction Details:</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Interaction ID</th>
+                                    <th>Customer ID</th>
+                                    <th>Type</th>
+                                    <th>Date/Time</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for interaction in report.interactions %}
+                                <tr>
+                                    <td><strong>{{ interaction.get_id() }}</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>
+                                    <td>{{ interaction.get_customer_id() }}</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>
+                                    <td>
+                                        <span class="type-badge 
+                                            {% if interaction.get_type() == 'Call' %}type-call
+                                            {% elif interaction.get_type() == 'Email' %}type-email
+                                            {% elif interaction.get_type() == 'Chat' %}type-chat
+                                            {% else %}type-visit{% endif %}">
+                                            {{ interaction.get_type() }}
+                                        </span>
+                                    </td>
+                                    <td>{{ interaction.get_datetime() }}</td>
+                                    <td>{{ interaction.get_notes()[:50] }}{% if interaction.get_notes()|length > 50 %}...{% endif %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-message">
+                        <p>📭 No interactions found for this period.</p>
+                    </div>
+                {% endif %}
             </div>
         {% endif %}
         
-        {% if message %}
-            <div class="message error">{{ message }}</div>
-        {% endif %}
-        
-        <a href="/" class="back-btn">← Back to Menu</a>
+        <a href="/reports" class="back-btn">← Back to Reports</a>
     </div>
 </body>
 </html>

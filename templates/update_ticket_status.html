@@ -2,18 +2,328 @@
 <html>
 <head>
     <title>Update Status</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-module {
+            margin-bottom: 20px;
+        }
+        
+        .menu-module h3 {
+            padding: 10px 25px;
+            font-size: 12px;
+            color: #8ba0b5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .menu-module ul {
+            list-style: none;
+        }
+        
+        .menu-module li a {
+            display: block;
+            padding: 10px 25px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .menu-module li a:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 35px;
+        }
+        
+        .logout-btn {
+            margin-top: 30px;
+            padding: 15px 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logout-btn a {
+            color: #e74c3c;
+            text-decoration: none;
+            display: block;
+            font-weight: bold;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            width: calc(100% - 280px);
+        }
+        
+        .page-title {
+            margin-bottom: 25px;
+        }
+        
+        .page-title h1 {
+            color: #2c3e50;
+            font-size: 28px;
+        }
+        
+        .page-title p {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        /* FORM CARD */
+        .form-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 15px 20px;
+        }
+        
+        .card-header h2 {
+            font-size: 18px;
+        }
+        
+        .card-content {
+            padding: 25px;
+        }
+        
+        .ticket-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .ticket-info p {
+            margin: 5px 0;
+        }
+        
+        .ticket-info strong {
+            color: #2c3e50;
+            width: 130px;
+            display: inline-block;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .status-open { background: #d4edda; color: #155724; }
+        .status-progress { background: #fff3cd; color: #856404; }
+        .status-resolved { background: #cce5ff; color: #004085; }
+        .status-closed { background: #e2e3e5; color: #383d41; }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-group select:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 5px rgba(33,150,243,0.3);
+        }
+        
+        .info-text {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 8px;
+            padding: 8px;
+            background: #fff3cd;
+            border-radius: 8px;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-cancel {
+            display: inline-block;
+            background: #95a5a6;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-left: 10px;
+            transition: background 0.3s;
+        }
+        
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+    </style>
 </head>
 <body>
-    <h1>Update Status</h1>
-    <p>Ticket: {{ ticket.get_id() }}</p>
-    <p>Current Status: {{ ticket.get_status() }}</p>
-    <form method="POST">
-        New Status:
-        <select name="status">
-            <option>Open</option><option>In Progress</option><option>Resolved</option><option>Closed</option>
-        </select><br><br>
-        <input type="submit" value="Update">
-        <a href="/view_tickets">Cancel</a>
-    </form>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>CRM System</h2>
+            <p>Admin Panel</p>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-module">
+                <h3>Module 1</h3>
+                <ul>
+                    <li><a href="/add">➕ Add Customer</a></li>
+                    <li><a href="/view">📋 View Customers</a></li>
+                    <li><a href="/search">🔍 Search Customer</a></li>
+                </ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 2</h3>
+                <ul>
+                    <li><a href="/add_interaction">💬 Add Interaction</a></li>
+                    <li><a href="/view_interactions">📖 View Interactions</a></li>
+                </ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 3</h3>
+                <ul>
+                    <li><a href="/create_ticket">🎫 Create Ticket</a></li>
+                    <li><a href="/view_tickets">📌 View Tickets</a></li>
+                </ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 4</h3>
+                <ul>
+                    <li><a href="/add_user">👤 Add User</a></li>
+                    <li><a href="/view_users">👥 Manage Users</a></li>
+                </ul>
+            </div>
+            <div class="menu-module">
+                <h3>Module 6</h3>
+                <ul>
+                    <li><a href="/reports">📊 Reports</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="logout-btn">
+            <a href="/logout">🚪 Logout</a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-title">
+            <h1>Update Ticket Status</h1>
+            <p>Change the status of a support ticket</p>
+        </div>
+        
+        <div class="form-card">
+            <div class="card-header">
+                <h2>📌 Status Settings</h2>
+            </div>
+            <div class="card-content">
+                <div class="ticket-info">
+                    <p><strong>Ticket ID:</strong> {{ ticket.get_id() }}</p>
+                    <p>
+                        <strong>Current Status:</strong> 
+                        <span class="status-badge 
+                            {% if ticket.get_status() == 'Open' %}status-open
+                            {% elif ticket.get_status() == 'In Progress' %}status-progress
+                            {% elif ticket.get_status() == 'Resolved' %}status-resolved
+                            {% else %}status-closed{% endif %}">
+                            {{ ticket.get_status() }}
+                        </span>
+                    </p>
+                </div>
+                
+                <form method="POST">
+                    <div class="form-group">
+                        <label>New Status:</label>
+                        <select name="status" required>
+                            <option value="Open">🟢 Open - Ticket created, waiting for response</option>
+                            <option value="In Progress">🟡 In Progress - Being worked on</option>
+                            <option value="Resolved">🔵 Resolved - Solution provided</option>
+                            <option value="Closed">⚫ Closed - Ticket closed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="info-text">
+                        💡 Tip: Tickets must be "Resolved" or "In Progress" before they can be closed.
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">Update Status</button>
+                    <a href="/view_tickets" class="btn-cancel">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
