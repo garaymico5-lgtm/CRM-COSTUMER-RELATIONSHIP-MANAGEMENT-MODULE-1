@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CRM System</title>
+    <title>CRM System Menu</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; display: flex; }
@@ -35,8 +35,7 @@
         
         <div class="sidebar-menu">
             
-            <!-- Module 1: Kita sa Admin ug Staff (Support dili) -->
-            {% if session.get('role') != 'Support' and session.get('role') != 'Customer' %}
+            <!-- MODULE 1 -->
             <div class="menu-module">
                 <h3>Module 1: Customer Management</h3>
                 <ul>
@@ -45,10 +44,8 @@
                     <li><a href="/search">🔍 Search Customer</a></li>
                 </ul>
             </div>
-            {% endif %}
             
-            <!-- Module 2: Kita sa tanan except Customer -->
-            {% if session.get('role') != 'Customer' %}
+            <!-- MODULE 2 -->
             <div class="menu-module">
                 <h3>Module 2: Interaction Management</h3>
                 <ul>
@@ -56,10 +53,8 @@
                     <li><a href="/view_interactions">📖 View Interactions</a></li>
                 </ul>
             </div>
-            {% endif %}
             
-            <!-- Module 3: Kita sa Admin, Staff, Support (Customer limited) -->
-            {% if session.get('role') != 'Customer' %}
+            <!-- MODULE 3 -->
             <div class="menu-module">
                 <h3>Module 3: Support Ticket System</h3>
                 <ul>
@@ -67,9 +62,8 @@
                     <li><a href="/view_tickets">📌 View Tickets</a></li>
                 </ul>
             </div>
-            {% endif %}
             
-            <!-- Module 4: Admin LANG -->
+            <!-- MODULE 4: ADMIN LANG -->
             {% if session.get('role') == 'Admin' %}
             <div class="menu-module">
                 <h3>Module 4: System Management</h3>
@@ -80,15 +74,13 @@
             </div>
             {% endif %}
             
-            <!-- Module 6: Kita sa Admin, Staff, Support -->
-            {% if session.get('role') != 'Customer' %}
+            <!-- MODULE 6 -->
             <div class="menu-module">
                 <h3>Module 6: Reporting Management</h3>
                 <ul>
                     <li><a href="/reports">📊 Reports</a></li>
                 </ul>
             </div>
-            {% endif %}
             
         </div>
         
