@@ -1,14 +1,41 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 app.secret_key = "secret123"
 
 
 # ============================================================
-# MODULE 1: CUSTOMER MANAGEMENT
+# SAVE/LOAD USERS USING TEXT FILE (Pure Python)
 # ============================================================
 
+USERS_FILE = "users.txt"
+
+def load_users_from_file():
+    """Load users from text file"""
+    users = []
+    if os.path.exists(USERS_FILE):
+        with open(USERS_FILE, 'r') as f:
+            for line in f:
+                if line.strip():
+                    parts = line.strip().split('|')
+                    if len(parts) == 4:
+                        user_id, username, password, role = parts
+                        user = SystemUser(user_id, username, password, role)
+                        users.append(user)
+    return users
+
+def save_users_to_file(users):
+    """Save users to text file"""
+    with open(USERS_FILE, 'w') as f:
+        for user in users:
+            f.write(f"{user.get_user_id()}|{user.get_username()}|{user.get_password()}|{user.get_role()}\n")
+
+
+# ============================================================
+# MODULE 1: CUSTOMER MANAGEMENT
+# ============================================================
 
 class Customer:
     def __init__(self, customer_id, name, contact, password):
@@ -34,6 +61,9 @@ class Customer:
 
     def set_contact(self, contact):
         self.__contact = contact
+    
+    def set_password(self, password):
+        self.__password = password
 
 
 class CRM:
@@ -73,9 +103,8 @@ class CRM:
 
 
 # ============================================================
-# MODULE 2: INTERACTION / COMMUNICATION MANAGEMENT
+# MODULE 2: INTERACTION MANAGEMENT
 # ============================================================
-
 
 class Interaction:
     def __init__(self, interaction_id, customer_id, interaction_type, date_time, notes):
@@ -151,10 +180,10 @@ class InteractionManager:
         self.interactions.remove(interaction)
         return True
 
+
 # ============================================================
 # MODULE 3: SUPPORT TICKET SYSTEM
 # ============================================================
-
 
 class SupportTicket:
     VALID_PRIORITIES = ["Low", "Medium", "High", "Critical"]
@@ -259,11 +288,10 @@ class TicketManager:
             self.tickets.remove(ticket)
             return True
         return False
-    
+
 
 # ============================================================
 # MODULE 4: SYSTEM MANAGEMENT (User Management)
-# ============================================================
 # ============================================================
 
 class SystemUser:
@@ -306,15 +334,16 @@ class SystemUser:
 
 class UserManager:
     def __init__(self):
-        self.users = []
-        self.__counter = 1
-        # Create default admin
-        self._create_default_admin()
+        self.users = load_users_from_file()
+        self.__counter = len(self.users) + 1
+        
+        if not self.users:
+            self._create_default_admin()
+            save_users_to_file(self.users)
     
     def _create_default_admin(self):
         default_admin = SystemUser("USR001", "admin", "1234", "Admin")
         self.users.append(default_admin)
-        self.__counter = 2
     
     def generate_id(self):
         uid = f"USR{self.__counter:03d}"
@@ -328,21 +357,16 @@ class UserManager:
         return True
     
     def add_user(self, username, password, role):
-        # Check unique username
         if not self.is_username_unique(username):
             return "Username already exists"
-        
-        # Check password
         if not password or password.strip() == "":
             return "Password cannot be empty"
-        
-        # Check role
         if role not in SystemUser.ROLES:
             return f"Invalid role. Choose: Admin, Staff, Support"
-        
         user_id = self.generate_id()
         user = SystemUser(user_id, username, password, role)
         self.users.append(user)
+        save_users_to_file(self.users)
         return f"User added successfully! User ID: {user_id}"
     
     def get_all_users(self):
@@ -364,32 +388,29 @@ class UserManager:
         user = self.get_user_by_id(user_id)
         if not user:
             return "User not found"
-        
         if new_username:
             if not self.is_username_unique(new_username) and new_username != user.get_username():
                 return "Username already exists"
             user.set_username(new_username)
-        
         if new_password:
             if not new_password.strip():
                 return "Password cannot be empty"
             user.set_password(new_password)
-        
         if new_role:
             if new_role not in SystemUser.ROLES:
                 return "Invalid role"
             user.set_role(new_role)
-        
+        save_users_to_file(self.users)
         return "User updated successfully"
     
     def delete_user(self, user_id):
         user = self.get_user_by_id(user_id)
         if not user:
             return False
-        # Cannot delete default admin
         if user.get_username() == "admin":
             return False
         self.users.remove(user)
+        save_users_to_file(self.users)
         return True
     
     def authenticate(self, username, password):
@@ -397,9 +418,10 @@ class UserManager:
         if user and user.get_password() == password:
             return user
         return None
-    
+
+
 # ============================================================
-# MODULE 5: REPORTING MANAGEMENT
+# MODULE 6: REPORTING MANAGEMENT
 # ============================================================
 
 from collections import Counter
@@ -412,7 +434,6 @@ class ReportManager:
         self.tm = tm
     
     def get_customer_report(self):
-        """Get total number of customers"""
         customers = self.crm.get_all()
         return {
             'total_customers': len(customers),
@@ -420,31 +441,25 @@ class ReportManager:
         }
     
     def get_interactions_per_period(self, period):
-        """Get interactions filtered by period (daily, weekly, monthly)"""
         interactions = self.im.interactions
         now = datetime.now()
         
         filtered_interactions = []
         
         for interaction in interactions:
-            # Parse the date_time string
             try:
-                # Assuming date_time format is "YYYY-MM-DD HH:MM"
                 interaction_date = datetime.strptime(interaction.get_datetime()[:10], "%Y-%m-%d")
             except:
                 continue
             
             if period == "daily":
-                # Today
                 if interaction_date.date() == now.date():
                     filtered_interactions.append(interaction)
             elif period == "weekly":
-                # Last 7 days
                 week_ago = now - timedelta(days=7)
                 if interaction_date >= week_ago:
                     filtered_interactions.append(interaction)
             elif period == "monthly":
-                # This month
                 if interaction_date.year == now.year and interaction_date.month == now.month:
                     filtered_interactions.append(interaction)
         
@@ -455,7 +470,6 @@ class ReportManager:
         }
     
     def get_most_common_interaction_type(self):
-        """Get most common interaction type (Call/Email/Chat/Visit)"""
         interactions = self.im.interactions
         
         if not interactions:
@@ -464,13 +478,11 @@ class ReportManager:
                 'message': 'No interaction records found'
             }
         
-        # Count each type
         type_counts = Counter()
         for interaction in interactions:
             interaction_type = interaction.get_type()
             type_counts[interaction_type] += 1
         
-        # Find most common
         if type_counts:
             most_common = type_counts.most_common(1)[0]
             return {
@@ -487,7 +499,6 @@ class ReportManager:
         }
     
     def get_support_ticket_report(self):
-        """Get summary of support tickets"""
         tickets = self.tm.get_all_tickets()
         
         if not tickets:
@@ -496,7 +507,6 @@ class ReportManager:
                 'message': 'No tickets found'
             }
         
-        # Count by status
         status_counts = Counter()
         priority_counts = Counter()
         
@@ -513,11 +523,9 @@ class ReportManager:
         }
 
 
-
 # ============================================================
 # GLOBAL INSTANCES
 # ============================================================
-
 
 crm = CRM()
 im = InteractionManager()
@@ -525,14 +533,21 @@ tm = TicketManager()
 um = UserManager()
 report_manager = ReportManager(crm, im, tm)
 
-
-# SAMPLE DATA FOR TESTING
+# SAMPLE CUSTOMER
 sample_customer = Customer("CUST001", "Juan Dela Cruz", "juan@email.com", "1234")
 crm.customers.append(sample_customer)
 
+# SAMPLE INTERACTION
+sample_interaction = Interaction("INT001", "CUST001", "Call", "2026-05-01 10:00", "Test interaction")
+im.interactions.append(sample_interaction)
+
+# SAMPLE TICKET
+sample_ticket = SupportTicket("TKT0001", "CUST001", "Test ticket", "High")
+tm.tickets.append(sample_ticket)
+
+
 # ============================================================
-# LOGIN ROUTE (Authentication)
-# ============================================================
+# LOGIN ROUTE
 # ============================================================
 
 @app.route("/login", methods=["GET", "POST"])
@@ -543,15 +558,16 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
         
-        # Check admin login
-        if username == "admin" and password == "1234":
+        user = um.authenticate(username, password)
+        
+        if user:
             session["user"] = username
-            session["role"] = "Admin"
-            session["type"] = "admin"
+            session["role"] = user.get_role()
+            session["type"] = "system_user"
             return redirect(url_for("home"))
         
-        # Check customer login
         customer = crm.authenticate(username, password)
+        
         if customer:
             session["user"] = customer.get_id()
             session["name"] = customer.get_name()
@@ -569,10 +585,10 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
-# ===========================================================
-# MODULE 1 ROUTES (Customer Management)
-# ============================================================
 
+# ============================================================
+# MODULE 1 ROUTES
+# ============================================================
 
 @app.route("/")
 def home():
@@ -651,9 +667,8 @@ def delete(cid):
 
 
 # ============================================================
-# MODULE 2 ROUTES (Interaction Management)
+# MODULE 2 ROUTES
 # ============================================================
-
 
 @app.route("/add_interaction", methods=["GET", "POST"])
 def add_interaction():
@@ -722,8 +737,9 @@ def delete_interaction(interaction_id):
     im.delete_interaction(interaction_id)
     return redirect(url_for("view_interaction"))
 
+
 # ============================================================
-# MODULE 3 ROUTES (Support Ticket System)
+# MODULE 3 ROUTES
 # ============================================================
 
 @app.route("/create_ticket", methods=["GET", "POST"])
@@ -790,47 +806,6 @@ def delete_ticket(ticket_id):
     tm.delete_ticket(ticket_id)
     return redirect(url_for("view_tickets"))
 
-# ============================================================
-# CUSTOMER ROUTES Para sa mga customer lang 
-# ============================================================
-
-
-@app.route("/customer_home")
-def customer_home():
-    if "user" not in session or session.get("type") != "customer":
-        return redirect(url_for("login"))
-    return render_template("customer_menu.html", name=session.get("name"), id=session.get("user"))
-
-
-@app.route("/customer_tickets")
-def customer_tickets():
-    if "user" not in session or session.get("type") != "customer":
-        return redirect(url_for("login"))
-    customer_id = session.get("user")
-    tickets = tm.get_tickets_by_customer(customer_id)
-    return render_template("customer_tickets.html", tickets=tickets)
-
-
-@app.route("/customer_create_ticket", methods=["GET", "POST"])
-def customer_create_ticket():
-    if "user" not in session or session.get("type") != "customer":
-        return redirect(url_for("login"))
-    message = ""
-    if request.method == "POST":
-        customer_id = session.get("user")
-        description = request.form.get("description")
-        priority = request.form.get("priority")
-        message = tm.create_ticket(customer_id, description, priority)
-    return render_template("customer_create_ticket.html", message=message)
-
-
-@app.route("/customer_interactions")
-def customer_interactions():
-    if "user" not in session or session.get("type") != "customer":
-        return redirect(url_for("login"))
-    customer_id = session.get("user")
-    interactions = im.get_by_customer(customer_id)
-    return render_template("customer_interactions.html", interactions=interactions)
 
 # ============================================================
 # MODULE 4 ROUTES (System Management)
@@ -925,12 +900,11 @@ def delete_user(user_id):
 
 
 # ============================================================
-# MODULE 5 ROUTES
+# MODULE 6 ROUTES (Reporting)
 # ============================================================
 
 @app.route("/reports")
 def reports():
-    """Main reports menu"""
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
     return render_template("reports.html")
@@ -938,52 +912,81 @@ def reports():
 
 @app.route("/report/customers")
 def report_customers():
-    """Customer Report - Display total number of customers"""
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-    
     report = report_manager.get_customer_report()
     return render_template("report_customers.html", report=report)
 
 
 @app.route("/report/interactions", methods=["GET", "POST"])
 def report_interactions():
-    """Interaction Report - Filter by period"""
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-    
     report = None
     period = None
-    
     if request.method == "POST":
         period = request.form.get("period")
         report = report_manager.get_interactions_per_period(period)
-    
     return render_template("report_interactions.html", report=report, period=period)
 
 
 @app.route("/report/interaction-types")
 def report_interaction_types():
-    """Most Common Interaction Type Report"""
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-    
     report = report_manager.get_most_common_interaction_type()
     return render_template("report_interaction_types.html", report=report)
 
 
 @app.route("/report/tickets")
 def report_tickets():
-    """Support Ticket Summary Report"""
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-    
     report = report_manager.get_support_ticket_report()
     return render_template("report_tickets.html", report=report)
 
+
 # ============================================================
-# RUN THE APP
+# CUSTOMER ROUTES
 # ============================================================
+
+@app.route("/customer_home")
+def customer_home():
+    if "user" not in session or session.get("type") != "customer":
+        return redirect(url_for("login"))
+    return render_template("customer_menu.html", name=session.get("name"), id=session.get("user"))
+
+
+@app.route("/customer_tickets")
+def customer_tickets():
+    if "user" not in session or session.get("type") != "customer":
+        return redirect(url_for("login"))
+    customer_id = session.get("user")
+    tickets = tm.get_tickets_by_customer(customer_id)
+    return render_template("customer_tickets.html", tickets=tickets)
+
+
+@app.route("/customer_create_ticket", methods=["GET", "POST"])
+def customer_create_ticket():
+    if "user" not in session or session.get("type") != "customer":
+        return redirect(url_for("login"))
+    message = ""
+    if request.method == "POST":
+        customer_id = session.get("user")
+        description = request.form.get("description")
+        priority = request.form.get("priority")
+        message = tm.create_ticket(customer_id, description, priority)
+    return render_template("customer_create_ticket.html", message=message)
+
+
+@app.route("/customer_interactions")
+def customer_interactions():
+    if "user" not in session or session.get("type") != "customer":
+        return redirect(url_for("login"))
+    customer_id = session.get("user")
+    interactions = im.get_by_customer(customer_id)
+    return render_template("customer_interactions.html", interactions=interactions)
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
