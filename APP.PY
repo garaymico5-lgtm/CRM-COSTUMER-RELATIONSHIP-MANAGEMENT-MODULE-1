@@ -7,13 +7,12 @@ app.secret_key = "secret123"
 
 
 # ============================================================
-# SAVE/LOAD USERS USING TEXT FILE (Pure Python)
+# SAVE/LOAD USERS USING TEXT FILE
 # ============================================================
 
 USERS_FILE = "users.txt"
 
 def load_users_from_file():
-    """Load users from text file"""
     users = []
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE, 'r') as f:
@@ -27,7 +26,6 @@ def load_users_from_file():
     return users
 
 def save_users_to_file(users):
-    """Save users to text file"""
     with open(USERS_FILE, 'w') as f:
         for user in users:
             f.write(f"{user.get_user_id()}|{user.get_username()}|{user.get_password()}|{user.get_role()}\n")
@@ -291,7 +289,7 @@ class TicketManager:
 
 
 # ============================================================
-# MODULE 4: SYSTEM MANAGEMENT (User Management)
+# MODULE 4: SYSTEM MANAGEMENT
 # ============================================================
 
 class SystemUser:
@@ -603,6 +601,9 @@ def home():
 def add():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") == "Support":
+        return "Access Denied", 403
+    
     message = ""
     if request.method == "POST":
         cid = request.form["id"]
@@ -617,6 +618,9 @@ def add():
 def view():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") == "Support":
+        return "Access Denied", 403
+    
     customers = crm.get_all()
     return render_template("view.html", customers=customers)
 
@@ -625,6 +629,9 @@ def view():
 def edit(cid):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") == "Support":
+        return "Access Denied", 403
+    
     customer = None
     for c in crm.get_all():
         if c.get_id() == cid:
@@ -645,6 +652,9 @@ def edit(cid):
 def search():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") == "Support":
+        return "Access Denied", 403
+    
     customer = None
     message = ""
     if request.method == "POST":
@@ -662,6 +672,9 @@ def search():
 def delete(cid):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") != "Admin":
+        return "Access Denied", 403
+    
     crm.delete_customer(cid)
     return redirect(url_for("view"))
 
@@ -674,6 +687,10 @@ def delete(cid):
 def add_interaction():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+ 
+    message = ""
+    customers = crm.get_all()
+    
     message = ""
     customers = crm.get_all()
     if request.method == "POST":
@@ -697,6 +714,7 @@ def add_interaction():
 def view_interaction():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    
     customer = None
     interactions = []
     message = ""
@@ -720,13 +738,18 @@ def view_interaction():
 def update_interaction(interaction_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") == "Support":
+        return "Access Denied", 403
+    
     interaction = im.get_by_id(interaction_id)
     if not interaction:
-        return "Not found"
+        return "Interaction not found"
+    
     if request.method == "POST":
         new_notes = request.form.get("notes")
         im.update_interaction(interaction_id, new_notes)
         return redirect(url_for("view_interaction"))
+    
     return render_template("update_interaction.html", interaction=interaction)
 
 
@@ -734,6 +757,9 @@ def update_interaction(interaction_id):
 def delete_interaction(interaction_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") != "Admin":
+        return "Access Denied", 403
+    
     im.delete_interaction(interaction_id)
     return redirect(url_for("view_interaction"))
 
@@ -746,6 +772,9 @@ def delete_interaction(interaction_id):
 def create_ticket():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") not in ["Admin", "Support"]:
+        return "Access Denied", 403
+    
     message = ""
     customers = crm.get_all()
     if request.method == "POST":
@@ -761,6 +790,9 @@ def create_ticket():
 def view_tickets():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") not in ["Admin", "Support"]:
+        return "Access Denied", 403
+    
     tickets = []
     message = ""
     customers = crm.get_all()
@@ -779,6 +811,9 @@ def view_tickets():
 def update_ticket_priority(ticket_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") not in ["Admin", "Support"]:
+        return "Access Denied", 403
+    
     ticket = tm.get_ticket_by_id(ticket_id)
     if request.method == "POST":
         new_priority = request.form.get("priority")
@@ -791,6 +826,9 @@ def update_ticket_priority(ticket_id):
 def update_ticket_status(ticket_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") not in ["Admin", "Support"]:
+        return "Access Denied", 403
+    
     ticket = tm.get_ticket_by_id(ticket_id)
     if request.method == "POST":
         new_status = request.form.get("status")
@@ -803,18 +841,23 @@ def update_ticket_status(ticket_id):
 def delete_ticket(ticket_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") != "Admin":
+        return "Access Denied", 403
+    
     tm.delete_ticket(ticket_id)
     return redirect(url_for("view_tickets"))
 
 
 # ============================================================
-# MODULE 4 ROUTES (System Management)
+# MODULE 4 ROUTES (Admin Only)
 # ============================================================
 
 @app.route("/add_user", methods=["GET", "POST"])
 def add_user():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") != "Admin":
+        return "Access Denied", 403
     
     message = ""
     if request.method == "POST":
@@ -833,6 +876,8 @@ def add_user():
 def view_users():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") != "Admin":
+        return "Access Denied", 403
     
     users = um.get_all_users()
     return render_template("view_users.html", users=users)
@@ -842,6 +887,8 @@ def view_users():
 def edit_user(user_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") != "Admin":
+        return "Access Denied", 403
     
     user = um.get_user_by_id(user_id)
     if not user:
@@ -864,6 +911,8 @@ def edit_user(user_id):
 def assign_role(user_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") != "Admin":
+        return "Access Denied", 403
     
     user = um.get_user_by_id(user_id)
     if not user:
@@ -884,6 +933,8 @@ def assign_role(user_id):
 def delete_user(user_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") != "Admin":
+        return "Access Denied", 403
     
     user = um.get_user_by_id(user_id)
     if not user:
@@ -900,13 +951,16 @@ def delete_user(user_id):
 
 
 # ============================================================
-# MODULE 6 ROUTES (Reporting)
+# MODULE 6 ROUTES
 # ============================================================
 
 @app.route("/reports")
 def reports():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") == "Customer":
+        return "Access Denied", 403
+    
     return render_template("reports.html")
 
 
@@ -914,6 +968,9 @@ def reports():
 def report_customers():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") == "Customer":
+        return "Access Denied", 403
+    
     report = report_manager.get_customer_report()
     return render_template("report_customers.html", report=report)
 
@@ -922,6 +979,9 @@ def report_customers():
 def report_interactions():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") == "Customer":
+        return "Access Denied", 403
+    
     report = None
     period = None
     if request.method == "POST":
@@ -934,6 +994,9 @@ def report_interactions():
 def report_interaction_types():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") == "Customer":
+        return "Access Denied", 403
+    
     report = report_manager.get_most_common_interaction_type()
     return render_template("report_interaction_types.html", report=report)
 
@@ -942,6 +1005,9 @@ def report_interaction_types():
 def report_tickets():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
+    if session.get("role") == "Customer":
+        return "Access Denied", 403
+    
     report = report_manager.get_support_ticket_report()
     return render_template("report_tickets.html", report=report)
 

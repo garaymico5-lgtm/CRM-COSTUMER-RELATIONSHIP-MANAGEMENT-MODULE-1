@@ -1,3 +1,4 @@
 USR001|admin|1234|Admin
 USR002|staff|123456789|Staff
 USR003|mico garay|mico garay|Support
+USR004|mico|1234|Staff
