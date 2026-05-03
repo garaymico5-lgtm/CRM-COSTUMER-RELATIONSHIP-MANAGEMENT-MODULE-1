@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from datetime import datetime
 import os
+import sys
 from abc import ABC, abstractmethod
 from collections import Counter
 from datetime import datetime, timedelta
@@ -8,6 +9,21 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'secret123')
 app.debug = False
+
+# ============================================================
+# IMPORTANTE: I-SET ANG TEMPLATES FOLDER PARA MAKITA SA VERCEL
+# ============================================================
+
+# Kuhaon ang base directory (ang main folder)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# I-set ang templates folder
+app.template_folder = os.path.join(BASE_DIR, 'templates')
+
+# Optional: I-print para sa debugging (makita sa Vercel logs)
+print(f"BASE_DIR: {BASE_DIR}")
+print(f"Templates folder: {app.template_folder}")
+print(f"Templates exist: {os.path.exists(app.template_folder)}")
 
 
 # ============================================================
@@ -42,7 +58,7 @@ class Person(ABC):
 # SAVE/LOAD USERS USING TEXT FILE
 # ============================================================
 
-USERS_FILE = "users.txt"
+USERS_FILE = os.path.join(BASE_DIR, "users.txt")
 
 def load_users_from_file():
     users = []
@@ -1039,5 +1055,4 @@ def customer_interactions():
     customer_id = session.get("user")
     interactions = im.get_by_customer(customer_id)
     return render_template("customer_interactions.html", interactions=interactions)
-
 
