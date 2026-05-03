@@ -1,2 +1,2 @@
 USR001|admin|1234|Admin
-USR005|alma|alma|Staff
+USR002|staff|1234|Staff

@@ -1,9 +1,38 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from datetime import datetime
 import os
+from abc import ABC, abstractmethod
 
 app = Flask(__name__)
 app.secret_key = "secret123"
+
+
+# ============================================================
+# ABSTRACTION (Abstract Base Class)
+# ============================================================
+
+class Person(ABC):
+    """Abstract base class for all persons in the system"""
+    
+    def __init__(self, id, name, contact):
+        self._id = id
+        self._name = name
+        self._contact = contact
+    
+    @abstractmethod
+    def get_id(self):
+        pass
+    
+    @abstractmethod
+    def get_name(self):
+        pass
+    
+    @abstractmethod
+    def get_contact(self):
+        pass
+    
+    def display_info(self):
+        return f"ID: {self._id}, Name: {self._name}, Contact: {self._contact}"
 
 
 # ============================================================
@@ -32,33 +61,32 @@ def save_users_to_file(users):
 
 
 # ============================================================
-# MODULE 1: CUSTOMER MANAGEMENT
+# MODULE 1: CUSTOMER MANAGEMENT (WITH INHERITANCE)
 # ============================================================
 
-class Customer:
+class Customer(Person):  # Inheritance from Person
     def __init__(self, customer_id, name, contact, password):
-        self.__customer_id = customer_id
-        self.__name = name
-        self.__contact = contact
+        super().__init__(customer_id, name, contact)
         self.__password = password
 
+    # Same method names - DILI MAAPEKTUHAN ANG HTML!
     def get_id(self):
-        return self.__customer_id
+        return self._id
 
     def get_name(self):
-        return self.__name
+        return self._name
 
     def get_contact(self):
-        return self.__contact
+        return self._contact
     
     def get_password(self):
         return self.__password
 
     def set_name(self, name):
-        self.__name = name
+        self._name = name
 
     def set_contact(self, contact):
-        self.__contact = contact
+        self._contact = contact
     
     def set_password(self, password):
         self.__password = password
@@ -289,27 +317,36 @@ class TicketManager:
 
 
 # ============================================================
-# MODULE 4: SYSTEM MANAGEMENT
+# MODULE 4: SYSTEM MANAGEMENT (WITH INHERITANCE)
 # ============================================================
 
-class SystemUser:
+class SystemUser(Person):  # Inheritance from Person
     ROLES = ["Admin", "Staff", "Support"]
     
     def __init__(self, user_id, username, password, role):
-        self.__user_id = user_id
-        self.__username = username
-        self.__password = password
+        super().__init__(user_id, username, password)
         self.__role = role
         self.__created_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
+    # Required abstract methods from Person (KINAHANGLAN NI!)
+    def get_id(self):
+        return self._id
+    
+    def get_name(self):
+        return self._name
+    
+    def get_contact(self):
+        return self._contact
+    
+    # Existing methods (same ra)
     def get_user_id(self):
-        return self.__user_id
+        return self._id
     
     def get_username(self):
-        return self.__username
+        return self._name
     
     def get_password(self):
-        return self.__password
+        return self._contact
     
     def get_role(self):
         return self.__role
@@ -318,10 +355,10 @@ class SystemUser:
         return self.__created_date
     
     def set_username(self, username):
-        self.__username = username
+        self._name = username
     
     def set_password(self, password):
-        self.__password = password
+        self._contact = password
     
     def set_role(self, role):
         if role in self.ROLES:
@@ -522,6 +559,30 @@ class ReportManager:
 
 
 # ============================================================
+# POLYMORPHISM (Same function name, lahi nga behavior)
+# ============================================================
+
+def get_person_info(person):
+    """Polymorphism - pwede mag-accept og Customer OR SystemUser"""
+    if isinstance(person, Customer):
+        return {
+            'type': 'Customer',
+            'id': person.get_id(),
+            'name': person.get_name(),
+            'contact': person.get_contact()
+        }
+    elif isinstance(person, SystemUser):
+        return {
+            'type': 'System User',
+            'id': person.get_user_id(),
+            'name': person.get_username(),
+            'contact': person.get_password(),
+            'role': person.get_role()
+        }
+    return None
+
+
+# ============================================================
 # GLOBAL INSTANCES
 # ============================================================
 
@@ -601,7 +662,6 @@ def home():
 def add():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-
     
     message = ""
     if request.method == "POST":
@@ -617,7 +677,6 @@ def add():
 def view():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-
     
     customers = crm.get_all()
     return render_template("view.html", customers=customers)
@@ -627,7 +686,6 @@ def view():
 def edit(cid):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-    
     
     customer = None
     for c in crm.get_all():
@@ -649,7 +707,7 @@ def edit(cid):
 def search():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-
+    
     customer = None
     message = ""
     if request.method == "POST":
@@ -667,7 +725,7 @@ def search():
 def delete(cid):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-
+    
     crm.delete_customer(cid)
     return redirect(url_for("view"))
 
@@ -680,9 +738,6 @@ def delete(cid):
 def add_interaction():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
- 
-    message = ""
-    customers = crm.get_all()
     
     message = ""
     customers = crm.get_all()
@@ -731,7 +786,6 @@ def view_interaction():
 def update_interaction(interaction_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-
     
     interaction = im.get_by_id(interaction_id)
     if not interaction:
@@ -749,7 +803,6 @@ def update_interaction(interaction_id):
 def delete_interaction(interaction_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-
     
     im.delete_interaction(interaction_id)
     return redirect(url_for("view_interaction"))
@@ -763,7 +816,6 @@ def delete_interaction(interaction_id):
 def create_ticket():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-    
     
     message = ""
     customers = crm.get_all()
@@ -799,7 +851,7 @@ def view_tickets():
 def update_ticket_priority(ticket_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-  
+    
     ticket = tm.get_ticket_by_id(ticket_id)
     if request.method == "POST":
         new_priority = request.form.get("priority")
@@ -812,7 +864,7 @@ def update_ticket_priority(ticket_id):
 def update_ticket_status(ticket_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-  
+    
     ticket = tm.get_ticket_by_id(ticket_id)
     if request.method == "POST":
         new_status = request.form.get("status")
@@ -831,14 +883,14 @@ def delete_ticket(ticket_id):
 
 
 # ============================================================
-# MODULE 4 ROUTES (Admin Only)
+# MODULE 4 ROUTES
 # ============================================================
 
 @app.route("/add_user", methods=["GET", "POST"])
 def add_user():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-  
+    
     message = ""
     if request.method == "POST":
         username = request.form.get("username")
@@ -856,7 +908,6 @@ def add_user():
 def view_users():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-
     
     users = um.get_all_users()
     return render_template("view_users.html", users=users)
@@ -866,7 +917,6 @@ def view_users():
 def edit_user(user_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-  
     
     user = um.get_user_by_id(user_id)
     if not user:
@@ -889,7 +939,6 @@ def edit_user(user_id):
 def assign_role(user_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-
     
     user = um.get_user_by_id(user_id)
     if not user:
@@ -910,7 +959,6 @@ def assign_role(user_id):
 def delete_user(user_id):
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-  
     
     user = um.get_user_by_id(user_id)
     if not user:
@@ -934,8 +982,6 @@ def delete_user(user_id):
 def reports():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-    if session.get("role") == "Customer":
-        return "Access Denied", 403
     
     return render_template("reports.html")
 
@@ -944,8 +990,6 @@ def reports():
 def report_customers():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-    if session.get("role") == "Customer":
-        return "Access Denied", 403
     
     report = report_manager.get_customer_report()
     return render_template("report_customers.html", report=report)
@@ -955,8 +999,6 @@ def report_customers():
 def report_interactions():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-    if session.get("role") == "Customer":
-        return "Access Denied", 403
     
     report = None
     period = None
@@ -970,8 +1012,6 @@ def report_interactions():
 def report_interaction_types():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-    if session.get("role") == "Customer":
-        return "Access Denied", 403
     
     report = report_manager.get_most_common_interaction_type()
     return render_template("report_interaction_types.html", report=report)
@@ -981,11 +1021,27 @@ def report_interaction_types():
 def report_tickets():
     if "user" not in session or session.get("type") == "customer":
         return redirect(url_for("login"))
-    if session.get("role") == "Customer":
-        return "Access Denied", 403
     
     report = report_manager.get_support_ticket_report()
     return render_template("report_tickets.html", report=report)
+
+
+# ============================================================
+# POLYMORPHISM DEMO ROUTE (Dili maka-apekto sa existing)
+# ============================================================
+
+@app.route("/demo/polymorphism")
+def demo_polymorphism():
+    """Test route para ipakita ang polymorphism (optional)"""
+    customer = Customer("DEMO001", "Test Customer", "test@email.com", "pass")
+    system_user = SystemUser("DEMO002", "test_user", "pass123", "Staff")
+    
+    result = {
+        'customer_info': get_person_info(customer),
+        'system_user_info': get_person_info(system_user),
+        'message': 'Polymorphism working! HTML not affected!'
+    }
+    return result
 
 
 # ============================================================
