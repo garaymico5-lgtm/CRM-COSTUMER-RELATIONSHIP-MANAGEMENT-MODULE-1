@@ -14,16 +14,8 @@ app.debug = False
 # IMPORTANTE: I-SET ANG TEMPLATES FOLDER PARA MAKITA SA VERCEL
 # ============================================================
 
-# Kuhaon ang base directory (ang main folder)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# I-set ang templates folder
 app.template_folder = os.path.join(BASE_DIR, 'templates')
-
-# Optional: I-print para sa debugging (makita sa Vercel logs)
-print(f"BASE_DIR: {BASE_DIR}")
-print(f"Templates folder: {app.template_folder}")
-print(f"Templates exist: {os.path.exists(app.template_folder)}")
 
 
 # ============================================================
@@ -31,8 +23,6 @@ print(f"Templates exist: {os.path.exists(app.template_folder)}")
 # ============================================================
 
 class Person(ABC):
-    """Abstract base class for all persons in the system"""
-    
     def __init__(self, id, name, contact):
         self._id = id
         self._name = name
@@ -49,34 +39,6 @@ class Person(ABC):
     @abstractmethod
     def get_contact(self):
         pass
-    
-    def display_info(self):
-        return f"ID: {self._id}, Name: {self._name}, Contact: {self._contact}"
-
-
-# ============================================================
-# SAVE/LOAD USERS USING TEXT FILE
-# ============================================================
-
-USERS_FILE = os.path.join(BASE_DIR, "users.txt")
-
-def load_users_from_file():
-    users = []
-    if os.path.exists(USERS_FILE):
-        with open(USERS_FILE, 'r') as f:
-            for line in f:
-                if line.strip():
-                    parts = line.strip().split('|')
-                    if len(parts) == 4:
-                        user_id, username, password, role = parts
-                        user = SystemUser(user_id, username, password, role)
-                        users.append(user)
-    return users
-
-def save_users_to_file(users):
-    with open(USERS_FILE, 'w') as f:
-        for user in users:
-            f.write(f"{user.get_user_id()}|{user.get_username()}|{user.get_password()}|{user.get_role()}\n")
 
 
 # ============================================================
@@ -385,16 +347,20 @@ class SystemUser(Person):
 
 class UserManager:
     def __init__(self):
-        self.users = load_users_from_file()
-        self.__counter = len(self.users) + 1
-        
-        if not self.users:
-            self._create_default_admin()
-            save_users_to_file(self.users)
+        self.users = []
+        self.__counter = 1
+        self._create_default_admin()
+        self._create_sample_users()
     
     def _create_default_admin(self):
         default_admin = SystemUser("USR001", "admin", "1234", "Admin")
         self.users.append(default_admin)
+    
+    def _create_sample_users(self):
+        staff = SystemUser("USR002", "staff", "staff123", "Staff")
+        support = SystemUser("USR003", "support", "support123", "Support")
+        self.users.append(staff)
+        self.users.append(support)
     
     def generate_id(self):
         uid = f"USR{self.__counter:03d}"
@@ -417,7 +383,6 @@ class UserManager:
         user_id = self.generate_id()
         user = SystemUser(user_id, username, password, role)
         self.users.append(user)
-        save_users_to_file(self.users)
         return f"User added successfully! User ID: {user_id}"
     
     def get_all_users(self):
@@ -451,7 +416,6 @@ class UserManager:
             if new_role not in SystemUser.ROLES:
                 return "Invalid role"
             user.set_role(new_role)
-        save_users_to_file(self.users)
         return "User updated successfully"
     
     def delete_user(self, user_id):
@@ -461,7 +425,6 @@ class UserManager:
         if user.get_username() == "admin":
             return False
         self.users.remove(user)
-        save_users_to_file(self.users)
         return True
     
     def authenticate(self, username, password):
@@ -1055,4 +1018,5 @@ def customer_interactions():
     customer_id = session.get("user")
     interactions = im.get_by_customer(customer_id)
     return render_template("customer_interactions.html", interactions=interactions)
+
 

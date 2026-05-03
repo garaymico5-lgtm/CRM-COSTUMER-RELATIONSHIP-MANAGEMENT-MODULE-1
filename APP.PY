@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, session, url_for
 from datetime import datetime
 import os
 from abc import ABC, abstractmethod
+from collections import Counter
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -36,40 +38,14 @@ class Person(ABC):
 
 
 # ============================================================
-# SAVE/LOAD USERS USING TEXT FILE
+# MODULE 1: CUSTOMER MANAGEMENT
 # ============================================================
 
-USERS_FILE = "users.txt"
-
-def load_users_from_file():
-    users = []
-    if os.path.exists(USERS_FILE):
-        with open(USERS_FILE, 'r') as f:
-            for line in f:
-                if line.strip():
-                    parts = line.strip().split('|')
-                    if len(parts) == 4:
-                        user_id, username, password, role = parts
-                        user = SystemUser(user_id, username, password, role)
-                        users.append(user)
-    return users
-
-def save_users_to_file(users):
-    with open(USERS_FILE, 'w') as f:
-        for user in users:
-            f.write(f"{user.get_user_id()}|{user.get_username()}|{user.get_password()}|{user.get_role()}\n")
-
-
-# ============================================================
-# MODULE 1: CUSTOMER MANAGEMENT (WITH INHERITANCE)
-# ============================================================
-
-class Customer(Person):  # Inheritance from Person
+class Customer(Person):
     def __init__(self, customer_id, name, contact, password):
         super().__init__(customer_id, name, contact)
         self.__password = password
 
-    # Same method names - DILI MAAPEKTUHAN ANG HTML!
     def get_id(self):
         return self._id
 
@@ -317,10 +293,10 @@ class TicketManager:
 
 
 # ============================================================
-# MODULE 4: SYSTEM MANAGEMENT (WITH INHERITANCE)
+# MODULE 4: SYSTEM MANAGEMENT
 # ============================================================
 
-class SystemUser(Person):  # Inheritance from Person
+class SystemUser(Person):
     ROLES = ["Admin", "Staff", "Support"]
     
     def __init__(self, user_id, username, password, role):
@@ -328,7 +304,6 @@ class SystemUser(Person):  # Inheritance from Person
         self.__role = role
         self.__created_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    # Required abstract methods from Person (KINAHANGLAN NI!)
     def get_id(self):
         return self._id
     
@@ -338,7 +313,6 @@ class SystemUser(Person):  # Inheritance from Person
     def get_contact(self):
         return self._contact
     
-    # Existing methods (same ra)
     def get_user_id(self):
         return self._id
     
@@ -369,16 +343,22 @@ class SystemUser(Person):  # Inheritance from Person
 
 class UserManager:
     def __init__(self):
-        self.users = load_users_from_file()
-        self.__counter = len(self.users) + 1
-        
-        if not self.users:
-            self._create_default_admin()
-            save_users_to_file(self.users)
+        # WALA NAY FILE SAVING! Users stored in memory only.
+        self.users = []
+        self.__counter = 1
+        self._create_default_admin()
+        self._create_sample_users()
     
     def _create_default_admin(self):
         default_admin = SystemUser("USR001", "admin", "1234", "Admin")
         self.users.append(default_admin)
+    
+    def _create_sample_users(self):
+        # Sample staff and support users
+        staff = SystemUser("USR002", "staff", "staff123", "Staff")
+        support = SystemUser("USR003", "support", "support123", "Support")
+        self.users.append(staff)
+        self.users.append(support)
     
     def generate_id(self):
         uid = f"USR{self.__counter:03d}"
@@ -401,7 +381,6 @@ class UserManager:
         user_id = self.generate_id()
         user = SystemUser(user_id, username, password, role)
         self.users.append(user)
-        save_users_to_file(self.users)
         return f"User added successfully! User ID: {user_id}"
     
     def get_all_users(self):
@@ -435,7 +414,6 @@ class UserManager:
             if new_role not in SystemUser.ROLES:
                 return "Invalid role"
             user.set_role(new_role)
-        save_users_to_file(self.users)
         return "User updated successfully"
     
     def delete_user(self, user_id):
@@ -445,7 +423,6 @@ class UserManager:
         if user.get_username() == "admin":
             return False
         self.users.remove(user)
-        save_users_to_file(self.users)
         return True
     
     def authenticate(self, username, password):
@@ -458,9 +435,6 @@ class UserManager:
 # ============================================================
 # MODULE 6: REPORTING MANAGEMENT
 # ============================================================
-
-from collections import Counter
-from datetime import datetime, timedelta
 
 class ReportManager:
     def __init__(self, crm, im, tm):
@@ -556,30 +530,6 @@ class ReportManager:
             'priority_counts': dict(priority_counts),
             'tickets': tickets
         }
-
-
-# ============================================================
-# POLYMORPHISM (Same function name, lahi nga behavior)
-# ============================================================
-
-def get_person_info(person):
-    """Polymorphism - pwede mag-accept og Customer OR SystemUser"""
-    if isinstance(person, Customer):
-        return {
-            'type': 'Customer',
-            'id': person.get_id(),
-            'name': person.get_name(),
-            'contact': person.get_contact()
-        }
-    elif isinstance(person, SystemUser):
-        return {
-            'type': 'System User',
-            'id': person.get_user_id(),
-            'name': person.get_username(),
-            'contact': person.get_password(),
-            'role': person.get_role()
-        }
-    return None
 
 
 # ============================================================
@@ -1024,24 +974,6 @@ def report_tickets():
     
     report = report_manager.get_support_ticket_report()
     return render_template("report_tickets.html", report=report)
-
-
-# ============================================================
-# POLYMORPHISM DEMO ROUTE (Dili maka-apekto sa existing)
-# ============================================================
-
-@app.route("/demo/polymorphism")
-def demo_polymorphism():
-    """Test route para ipakita ang polymorphism (optional)"""
-    customer = Customer("DEMO001", "Test Customer", "test@email.com", "pass")
-    system_user = SystemUser("DEMO002", "test_user", "pass123", "Staff")
-    
-    result = {
-        'customer_info': get_person_info(customer),
-        'system_user_info': get_person_info(system_user),
-        'message': 'Polymorphism working! HTML not affected!'
-    }
-    return result
 
 
 # ============================================================
