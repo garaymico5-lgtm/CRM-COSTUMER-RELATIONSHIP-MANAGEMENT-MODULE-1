@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from datetime import datetime
-import os
 from abc import ABC, abstractmethod
 from collections import Counter
 from datetime import datetime, timedelta
