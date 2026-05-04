@@ -838,7 +838,7 @@ def delete_ticket(ticket_id):
 
 @app.route("/add_user", methods=["GET", "POST"])
 def add_user():
-    if "user" not in session or session.get("type") == "customer":
+    if "user" not in session or session.get("type") == "customer" or session.get("role") != "Admin":
         return redirect(url_for("login"))
     
     message = ""
@@ -856,7 +856,7 @@ def add_user():
 
 @app.route("/view_users")
 def view_users():
-    if "user" not in session or session.get("type") == "customer":
+    if "user" not in session or session.get("type") == "customer" or session.get("role") != "Admin":
         return redirect(url_for("login"))
     
     users = um.get_all_users()
@@ -865,7 +865,7 @@ def view_users():
 
 @app.route("/edit_user/<user_id>", methods=["GET", "POST"])
 def edit_user(user_id):
-    if "user" not in session or session.get("type") == "customer":
+    if "user" not in session or session.get("type") == "customer" or session.get("role") != "Admin":
         return redirect(url_for("login"))
     
     user = um.get_user_by_id(user_id)
@@ -887,7 +887,7 @@ def edit_user(user_id):
 
 @app.route("/assign_role/<user_id>", methods=["GET", "POST"])
 def assign_role(user_id):
-    if "user" not in session or session.get("type") == "customer":
+    if "user" not in session or session.get("type") == "customer" or session.get("role") != "Admin":
         return redirect(url_for("login"))
     
     user = um.get_user_by_id(user_id)
@@ -907,7 +907,7 @@ def assign_role(user_id):
 
 @app.route("/delete_user/<user_id>", methods=["GET", "POST"])
 def delete_user(user_id):
-    if "user" not in session or session.get("type") == "customer":
+    if "user" not in session or session.get("type") == "customer" or session.get("role") != "Admin":
         return redirect(url_for("login"))
     
     user = um.get_user_by_id(user_id)
