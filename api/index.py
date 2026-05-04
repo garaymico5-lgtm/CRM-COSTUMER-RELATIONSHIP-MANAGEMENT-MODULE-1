@@ -10,9 +10,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'secret123')
 app.debug = False
 
-# ============================================================
-# IMPORTANTE: I-SET ANG TEMPLATES FOLDER PARA MAKITA SA VERCEL
-# ============================================================
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 app.template_folder = os.path.join(BASE_DIR, 'templates')
