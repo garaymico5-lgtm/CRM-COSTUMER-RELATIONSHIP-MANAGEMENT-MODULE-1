@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 app.secret_key = "secret123"
 
-
 # ============================================================
 # ABSTRACTION (Abstract Base Class)
 # ============================================================
