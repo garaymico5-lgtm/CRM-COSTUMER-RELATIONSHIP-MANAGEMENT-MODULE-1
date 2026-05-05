@@ -542,7 +542,11 @@ report_manager = ReportManager(crm, im, tm)
 
 # SAMPLE CUSTOMER
 sample_customer = Customer("CUST001", "Juan Dela Cruz", "juan@email.com", "1234")
+sample_customer2 = Customer("CUST002", "Maria Santos", "maria@email.com", "5678")
+sample_customer3 = Customer("CUST003", "Pedro Reyes", "pedro@email.com", "abcd")
 crm.customers.append(sample_customer)
+crm.customers.append(sample_customer2)
+crm.customers.append(sample_customer3)
 
 # SAMPLE INTERACTION
 sample_interaction = Interaction("INT001", "CUST001", "Call", "2026-05-01 10:00", "Test interaction")
